@@ -64,7 +64,7 @@ public class Main extends Application {
 		
 		clearScreen();
 		
-		BluetoothHelper bluetoothHelper = new BluetoothHelper(this);
+		WiFiHelper bluetoothHelper = new WiFiHelper(this);
 		Thread thread = new Thread(bluetoothHelper);
 		thread.start();
 	}
