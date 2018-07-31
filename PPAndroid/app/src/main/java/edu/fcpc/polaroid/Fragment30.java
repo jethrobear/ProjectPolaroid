@@ -74,7 +74,7 @@ public class Fragment30 extends Fragment {
         @Override
         public void onClick(DialogInterface dialog, int which) {
             if(data != null)
-                new BluetoothSendingHelper(main, data).execute();
+                new WiFiSendingHelper(main, data).execute();
         }
     }
 

@@ -1,0 +1,1 @@
+[07312018 231538] Starting to prepare SQL connection

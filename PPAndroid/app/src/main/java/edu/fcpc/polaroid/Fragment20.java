@@ -8,6 +8,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -20,10 +21,15 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectOutputStream;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.util.UUID;
 
@@ -91,40 +97,36 @@ public class Fragment20 extends Fragment {
 
                     @Override
                     protected Integer doInBackground(String... params) {
-                        int returnInt = 0;
                         try {
-                            btServerSocket =
-                                    bluetoothAdapter.listenUsingRfcommWithServiceRecord("BluetoothImageTransfer",
-                                            UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
-                            Thread.sleep(100);
-                            btSocket = btServerSocket.accept();
+                            InetAddress inetAddress = InetAddress.getLocalHost();
+                            byte[] ip = inetAddress.getAddress();
 
-                            // Send Login
-                            dataOutputStream = new DataOutputStream(btSocket.getOutputStream());
-                            String loginInfo = "login|" + params[0] + "|" + params[1] + (char)255;
-                            dataOutputStream.writeUTF(loginInfo);
-                            dataOutputStream.flush();
-                            //dialog.setMessage("Data sent, waiting for response");
+                            for (int i = 1; i <= 254; i++) {
+                                ip[3] = (byte) i;
+                                InetAddress address = InetAddress.getByAddress(ip);
+                                if (address.isReachable(1000)) {
+                                    Socket socket = new Socket(address.getHostAddress(), 1234);
+                                    ObjectOutputStream objOutStream = new ObjectOutputStream(socket.getOutputStream());
 
-                            // Get status
-                            dataInputStream = new DataInputStream(btSocket.getInputStream());
-                            try {
-                                String returnValue = dataInputStream.readUTF();
-                                if (returnValue.toUpperCase().contains("PASS"))
-                                    returnInt = 1;
-                            }catch(Exception e){
-                                //dialog.setMessage(e.getMessage());
-                                Thread.sleep(Integer.MAX_VALUE);
+                                    SentPackage sentPackage = new SentPackage();
+                                    sentPackage.packageStatus = PackageStatus.LOGIN;
+                                    sentPackage.username = params[0];
+                                    sentPackage.password = params[1];
+
+                                    objOutStream.writeObject(sentPackage);
+                                    objOutStream.flush();
+                                    objOutStream.close();
+
+                                    return 0;
+                                }
                             }
-
-                            // Trickle
-                            btSocket.close();
-                            btServerSocket.close();
-                        }catch(InterruptedException | IOException e){
-                            errMessage = e.getMessage();
+                        }catch(UnknownHostException uhe){
+                            // TODO: Something to check more addresses
+                        }catch(IOException ioe){
+                            // TODO: IF the address doesnt cater to the port
+                        }finally {
                             return -1;
                         }
-                        return returnInt;
                     }
 
                     @Override

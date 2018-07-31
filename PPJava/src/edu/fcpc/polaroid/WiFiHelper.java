@@ -2,7 +2,6 @@ package edu.fcpc.polaroid;
 
 import edu.fcpc.polaroid.SentPackage;
 import javafx.scene.image.Image;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -50,7 +49,7 @@ public class WiFiHelper implements Runnable{
 		            Image image = new Image(byteArrayInputStream);
 		            main.setImage(image);
 				}else if(sentPackage.packageStatus == PackageStatus.LOGIN) {
-					throw new NotImplementedException();
+					// TODO: DO SOMETHING TO LOGIN
 				}
 			}
 		}catch(IOException ioe) {
