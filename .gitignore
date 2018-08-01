@@ -106,3 +106,4 @@ venv.bak/
 # Other stuff
 PPJava/.*
 PPAndroid/.*
+PPAndroid/local.properties
