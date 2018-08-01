@@ -39,37 +39,43 @@ public class WiFiSendingHelper extends AsyncTask<Void, Void, Integer> {
     protected Integer doInBackground(Void... voids) {
         // Scan all the machine IPs in the network
         try {
-            InetAddress inetAddress = InetAddress.getLocalHost();
-            byte[] ip = inetAddress.getAddress();
+            WifiManager mWifiManager = (WifiManager) main.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+            WifiInfo mWifiInfo = mWifiManager.getConnectionInfo();
+            int subnet = mWifiManager.getDhcpInfo().gateway;
+            byte[] ipBytes = new byte[]{(byte)(subnet & 0xff),
+                                        (byte)(subnet >> 8 & 0xff),
+                                        (byte)(subnet >> 16 & 0xff),
+                                        0x00};
 
             for (int i = 1; i <= 254; i++) {
-                ip[3] = (byte) i;
-                InetAddress address = InetAddress.getByAddress(ip);
+                ipBytes[3] = (byte) i;
+                InetAddress address = InetAddress.getByAddress(ipBytes);
                 if (address.isReachable(1000)) {
-                    Socket socket = new Socket(address.getHostAddress(), 1234);
-                    ObjectOutputStream objOutStream = new ObjectOutputStream(socket.getOutputStream());
+                    try{
+                        Socket socket = new Socket(address.getHostAddress(), 1234);
+                        ObjectOutputStream objOutStream = new ObjectOutputStream(socket.getOutputStream());
 
-                    Bitmap bitmap = (Bitmap) data.getExtras().get("data");
-                    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
-                    outputStream.flush();
-                    outputStream.close();
-                    SentPackage sentPackage = new SentPackage();
-                    sentPackage.packageStatus = PackageStatus.PICTURE;
-                    sentPackage.imagebinary = outputStream.toByteArray();
-                    sentPackage.filename = "A"; // TODO: Determine if this is needed
+                        Bitmap bitmap = (Bitmap) data.getExtras().get("data");
+                        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+                        outputStream.flush();
+                        outputStream.close();
+                        SentPackage sentPackage = new SentPackage();
+                        sentPackage.packageStatus = PackageStatus.PICTURE;
+                        sentPackage.imagebinary = outputStream.toByteArray();
+                        sentPackage.filename = "A"; // TODO: Determine if this is needed
 
-                    objOutStream.writeObject(sentPackage);
-                    objOutStream.flush();
-                    objOutStream.close();
-
+                        objOutStream.writeObject(sentPackage);
+                        objOutStream.flush();
+                        objOutStream.close();
+                    catch(IOException ioe){
+                        // TODO: The address had not opened port
+                    }
                     return 0;
                 }
             }
         }catch(UnknownHostException uhe){
             // TODO: Something to check more addresses
-        }catch(IOException ioe){
-            // TODO: IF the address doesnt cater to the port
         }finally {
             return -1;
         }

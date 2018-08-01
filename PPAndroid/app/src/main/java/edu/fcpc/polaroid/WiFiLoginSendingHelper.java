@@ -43,32 +43,38 @@ public class WiFiLoginSendingHelper extends AsyncTask<String, Void, Integer> {
     @Override
     protected Integer doInBackground(String... params) {
         try {
-            InetAddress inetAddress = InetAddress.getLocalHost();
-            byte[] ip = inetAddress.getAddress();
+            WifiManager mWifiManager = (WifiManager) main.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+            WifiInfo mWifiInfo = mWifiManager.getConnectionInfo();
+            int subnet = mWifiManager.getDhcpInfo().gateway;
+            byte[] ipBytes = new byte[]{(byte)(subnet & 0xff),
+                                        (byte)(subnet >> 8 & 0xff),
+                                        (byte)(subnet >> 16 & 0xff),
+                                        0x00};
 
             for (int i = 1; i <= 254; i++) {
-                ip[3] = (byte) i;
-                InetAddress address = InetAddress.getByAddress(ip);
+                ipBytes[3] = (byte) i;
+                InetAddress address = InetAddress.getByAddress(ipBytes);
                 if (address.isReachable(1000)) {
-                    Socket socket = new Socket(address.getHostAddress(), 1234);
-                    ObjectOutputStream objOutStream = new ObjectOutputStream(socket.getOutputStream());
+                    try{
+                        Socket socket = new Socket(address.getHostAddress(), 1234);
+                        ObjectOutputStream objOutStream = new ObjectOutputStream(socket.getOutputStream());
 
-                    SentPackage sentPackage = new SentPackage();
-                    sentPackage.packageStatus = PackageStatus.LOGIN;
-                    sentPackage.username = params[0];
-                    sentPackage.password = params[1];
+                        SentPackage sentPackage = new SentPackage();
+                        sentPackage.packageStatus = PackageStatus.LOGIN;
+                        sentPackage.username = params[0];
+                        sentPackage.password = params[1];
 
-                    objOutStream.writeObject(sentPackage);
-                    objOutStream.flush();
-                    objOutStream.close();
-
+                        objOutStream.writeObject(sentPackage);
+                        objOutStream.flush();
+                        objOutStream.close();
+                    catch(IOException ioe){
+                        // TODO: The address had not opened port
+                    }
                     return 0;
                 }
             }
         }catch(UnknownHostException uhe){
             // TODO: Something to check more addresses
-        }catch(IOException ioe){
-            // TODO: IF the address doesnt cater to the port
         }finally {
             return -1;
         }

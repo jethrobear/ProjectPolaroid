@@ -48,25 +48,26 @@ public class WiFiLoginHelper extends AsyncTask<String, Void, Integer> {
                 ipBytes[3] = (byte) i;
                 InetAddress address = InetAddress.getByAddress(ipBytes);
                 if (address.isReachable(1000)) {
-                    Socket socket = new Socket(address.getHostAddress(), 1234);
-                    ObjectOutputStream objOutStream = new ObjectOutputStream(socket.getOutputStream());
+                    try{
+                        Socket socket = new Socket(address.getHostAddress(), 1234);
+                        ObjectOutputStream objOutStream = new ObjectOutputStream(socket.getOutputStream());
 
-                    SentPackage sentPackage = new SentPackage();
-                    sentPackage.packageStatus = PackageStatus.LOGIN;
-                    sentPackage.username = params[0];
-                    sentPackage.password = params[1];
+                        SentPackage sentPackage = new SentPackage();
+                        sentPackage.packageStatus = PackageStatus.LOGIN;
+                        sentPackage.username = params[0];
+                        sentPackage.password = params[1];
 
-                    objOutStream.writeObject(sentPackage);
-                    objOutStream.flush();
-                    objOutStream.close();
-
+                        objOutStream.writeObject(sentPackage);
+                        objOutStream.flush();
+                        objOutStream.close();
+                    catch(IOException ioe){
+                        // TODO: The address had not opened port
+                    }
                     return 0;
                 }
             }
         }catch(UnknownHostException uhe){
             // TODO: Something to check more addresses
-        }catch(IOException ioe){
-            // TODO: IF the address doesnt cater to the port
         }finally {
             return -1;
         }
