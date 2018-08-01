@@ -23,9 +23,9 @@ import java.util.UUID;
  * Created by PAULM915 on 11/08/2017.
  */
 
-public class WiFiLoginSendingHelper extends WiFiHelper {
+public class WiFiRegisterHelper extends WiFiHelper {
 
-    public WiFiLoginSendingHelper(Activity main){
+    public WiFiRegisterHelper(Activity main){
         super(main);
     }
 
@@ -40,9 +40,14 @@ public class WiFiLoginSendingHelper extends WiFiHelper {
     public Integer doInBackgroundInner(ObjectOutputStream objOutStream, String... params) throws IOException{
 
         SentPackage sentPackage = new SentPackage();
-        sentPackage.packageStatus = PackageStatus.LOGIN;
-        sentPackage.username = params[0];
-        sentPackage.password = params[1];
+        sentPackage.packageStatus = PackageStatus.REGISTER;
+        sentPackage.lastname = params[0];
+        sentPackage.firstname = params[1];
+        sentPackage.birthmonth = params[2];
+        sentPackage.birthday = params[3];
+        sentPackage.birthyear = params[4];
+        sentPackage.username = params[5];
+        sentPackage.password = params[6];
 
         objOutStream.writeObject(sentPackage);
         objOutStream.flush();
