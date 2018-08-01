@@ -1,6 +1,5 @@
 package edu.fcpc.polaroid;
 
-import edu.fcpc.polaroid.SentPackage;
 import javafx.scene.image.Image;
 
 import java.io.ByteArrayInputStream;
@@ -12,6 +11,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import edu.fcpc.polaroid.packets.PackageStatus;
+import edu.fcpc.polaroid.packets.SentPackage;
 
 public class WiFiHelper implements Runnable{
 	private Main main;
@@ -50,6 +52,8 @@ public class WiFiHelper implements Runnable{
 		            main.setImage(image);
 				}else if(sentPackage.packageStatus == PackageStatus.LOGIN) {
 					// TODO: DO SOMETHING TO LOGIN
+				}else if(sentPackage.packageStatus == PackageStatus.REGISTER) {
+					// TODO: Register the member
 				}
 			}
 		}catch(IOException ioe) {

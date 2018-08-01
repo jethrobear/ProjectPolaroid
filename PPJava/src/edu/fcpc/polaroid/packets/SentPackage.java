@@ -1,4 +1,4 @@
-package edu.fcpc.polaroid;
+package edu.fcpc.polaroid.packets;
 
 import java.io.Serializable;
 
