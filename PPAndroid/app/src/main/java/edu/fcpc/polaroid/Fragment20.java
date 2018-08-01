@@ -37,16 +37,10 @@ import java.util.UUID;
  * A simple {@link Fragment} subclass.
  */
 public class Fragment20 extends Fragment {
-    private final BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-    private BluetoothServerSocket btServerSocket;
-    private BluetoothSocket btSocket;
-    private DataOutputStream dataOutputStream;
-    private DataInputStream dataInputStream;
     private ProgressDialog dialog;
-    private String errMessage;
     private EditText txtUsername;
     private EditText txtPassword;
-    private int retries = 0;
+
 
     public Fragment20() {
         // Required empty public constructor
@@ -87,104 +81,7 @@ public class Fragment20 extends Fragment {
 //                       user.getPassword().equals(txtPassword.getText().toString()))
 //                        hasHit = true;
 //                }
-                AsyncTask<String, Void, Integer> btLoginSendHlpr = new AsyncTask<String, Void, Integer>() {
-                    @Override
-                    protected void onPreExecute()
-                    {
-                        dialog.setMessage("Sending login to Digital Frame");
-                        dialog.show();
-                    }
-
-                    @Override
-                    protected Integer doInBackground(String... params) {
-                        try {
-                            InetAddress inetAddress = InetAddress.getLocalHost();
-                            byte[] ip = inetAddress.getAddress();
-
-                            for (int i = 1; i <= 254; i++) {
-                                ip[3] = (byte) i;
-                                InetAddress address = InetAddress.getByAddress(ip);
-                                if (address.isReachable(1000)) {
-                                    Socket socket = new Socket(address.getHostAddress(), 1234);
-                                    ObjectOutputStream objOutStream = new ObjectOutputStream(socket.getOutputStream());
-
-                                    SentPackage sentPackage = new SentPackage();
-                                    sentPackage.packageStatus = PackageStatus.LOGIN;
-                                    sentPackage.username = params[0];
-                                    sentPackage.password = params[1];
-
-                                    objOutStream.writeObject(sentPackage);
-                                    objOutStream.flush();
-                                    objOutStream.close();
-
-                                    return 0;
-                                }
-                            }
-                        }catch(UnknownHostException uhe){
-                            // TODO: Something to check more addresses
-                        }catch(IOException ioe){
-                            // TODO: IF the address doesnt cater to the port
-                        }finally {
-                            return -1;
-                        }
-                    }
-
-                    @Override
-                    protected void onPostExecute(Integer result)
-                    {
-                        dialog.dismiss();
-                        if(result == -1) {
-                            new AlertDialog.Builder(getActivity())
-                                    .setTitle("Alert Box")
-                                    .setCancelable(false)
-                                    .setMessage(errMessage)
-                                    .setNeutralButton("OK", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            System.exit(0);
-                                        }
-                                    }).create().show();
-                        }
-
-                        boolean hasHit = (result == 1);
-                        if(hasHit) {
-                            // Login successful
-                            Fragment30 fragment30 = new Fragment30();
-                            FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-                            fragmentTransaction.replace(R.id.main_frame, fragment30, fragment30.toString());
-                            fragmentTransaction.commit();
-                        }else if(!hasHit && retries <= 1){
-                            new AlertDialog.Builder(getActivity())
-                                    .setTitle("Alert Box")
-                                    .setCancelable(false)
-                                    .setMessage("Wrong username and password")
-                                    .setNeutralButton("Retry", new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            dialog.dismiss();
-                                        }
-                                    }).create().show();
-                            retries++;
-                        }else{
-                            new AlertDialog.Builder(getActivity())
-                                    .setTitle("Alert Box")
-                                    .setCancelable(false)
-                                    .setMessage("Username and password not valid. Create a new user?")
-                                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            Fragment21 fragment21 = new Fragment21();
-                                            FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-                                            fragmentTransaction.replace(R.id.main_frame, fragment21, fragment21.toString());
-                                            fragmentTransaction.commit();
-                                        }
-                                    })
-                                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            dialog.dismiss();
-                                        }
-                                    }).create().show();
-                        }
-                    }
-                };
+                AsyncTask<String, Void, Integer> btLoginSendHlpr = new WiFiLoginHelper(Fragment20.this.getActivity());
                 btLoginSendHlpr.execute(txtUsername.getText().toString(), txtPassword.getText().toString());
             }
         });
