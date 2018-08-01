@@ -16,14 +16,9 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-public class WiFiLoginHelper extends AsyncTask<String, Void, Integer> {
-    private ProgressDialog dialog;
-    private Activity main;
-
+public class WiFiLoginHelper extends WiFiHelper {
     public WiFiLoginHelper(Activity main){
-        this.main = main;
-        dialog = new ProgressDialog(main);
-        dialog.setCancelable(false);
+        super(main);
     }
 
     @Override
@@ -34,43 +29,17 @@ public class WiFiLoginHelper extends AsyncTask<String, Void, Integer> {
     }
 
     @Override
-    protected Integer doInBackground(String... params) {
-        try {
-            WifiManager mWifiManager = (WifiManager) main.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-            WifiInfo mWifiInfo = mWifiManager.getConnectionInfo();
-            int subnet = mWifiManager.getDhcpInfo().gateway;
-            byte[] ipBytes = new byte[]{(byte)(subnet & 0xff),
-                                        (byte)(subnet >> 8 & 0xff),
-                                        (byte)(subnet >> 16 & 0xff),
-                                        0x00};
+    public Integer doInBackgroundInner(ObjectOutputStream objOutStream, String... params) throws IOException{
+        SentPackage sentPackage = new SentPackage();
+        sentPackage.packageStatus = PackageStatus.LOGIN;
+        sentPackage.username = params[0];
+        sentPackage.password = params[1];
 
-            for (int i = 1; i <= 254; i++) {
-                ipBytes[3] = (byte) i;
-                InetAddress address = InetAddress.getByAddress(ipBytes);
-                if (address.isReachable(1000)) {
-                    try{
-                        Socket socket = new Socket(address.getHostAddress(), 1234);
-                        ObjectOutputStream objOutStream = new ObjectOutputStream(socket.getOutputStream());
+        objOutStream.writeObject(sentPackage);
+        objOutStream.flush();
+        objOutStream.close();
 
-                        SentPackage sentPackage = new SentPackage();
-                        sentPackage.packageStatus = PackageStatus.LOGIN;
-                        sentPackage.username = params[0];
-                        sentPackage.password = params[1];
-
-                        objOutStream.writeObject(sentPackage);
-                        objOutStream.flush();
-                        objOutStream.close();
-                    catch(IOException ioe){
-                        // TODO: The address had not opened port
-                    }
-                    return 0;
-                }
-            }
-        }catch(UnknownHostException uhe){
-            // TODO: Something to check more addresses
-        }finally {
-            return -1;
-        }
+        return 0;
     }
 
     private int retries = 0;
@@ -130,3 +99,4 @@ public class WiFiLoginHelper extends AsyncTask<String, Void, Integer> {
         }
     }
 }
+
