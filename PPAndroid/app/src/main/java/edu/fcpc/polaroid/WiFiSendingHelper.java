@@ -49,14 +49,6 @@ public class WiFiSendingHelper extends WiFiHelper {
 
         return 0;
     }
-
-    @Override
-    protected void onPostExecute(Integer result)
-    {
-        dialog.dismiss();
-        if(result == -1)
-            Toast.makeText(main, "Bluetooth send failed", Toast.LENGTH_SHORT).show();
-    }
 }
 
 

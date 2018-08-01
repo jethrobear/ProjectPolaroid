@@ -30,6 +30,13 @@ public class WiFiLoginSendingHelper extends WiFiHelper {
     }
 
     @Override
+    protected void onPreExecute()
+    {
+        dialog.setMessage("Sending image to Digital Frame");
+        dialog.show();
+    }
+
+    @Override
     public Integer doInBackgroundInner(ObjectOutputStream objOutStream, String... params) throws IOException{
 
         SentPackage sentPackage = new SentPackage();
@@ -42,20 +49,5 @@ public class WiFiLoginSendingHelper extends WiFiHelper {
         objOutStream.close();
 
         return 0;
-    }
-
-    @Override
-    protected void onPreExecute()
-    {
-        dialog.setMessage("Sending image to Digital Frame");
-        dialog.show();
-    }
-
-    @Override
-    protected void onPostExecute(Integer result)
-    {
-        dialog.dismiss();
-        if(result == -1)
-            Toast.makeText(main, "Bluetooth send failed", Toast.LENGTH_SHORT).show();
     }
 }

@@ -46,19 +46,7 @@ public class WiFiLoginHelper extends WiFiHelper {
     @Override
     protected void onPostExecute(Integer result)
     {
-        dialog.dismiss();
-        if(result == -1) {
-            new AlertDialog.Builder(main)
-                    .setTitle("Alert Box")
-                    .setCancelable(false)
-                    .setMessage("Something went wrong")  // TODO: Check error on the onProgress
-                    .setNeutralButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            System.exit(0);
-                        }
-                    }).create().show();
-        }
+        super.onPostExecute(result);
 
         boolean hasHit = (result == 1);
         if(hasHit) {

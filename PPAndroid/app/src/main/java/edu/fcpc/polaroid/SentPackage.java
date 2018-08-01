@@ -1,6 +1,8 @@
 package edu.fcpc.polaroid;
 
-public class SentPackage {
+import java.io.Serializable;
+
+public class SentPackage implements Serializable{
 	public PackageStatus packageStatus;
 	
 	// Images metadata
