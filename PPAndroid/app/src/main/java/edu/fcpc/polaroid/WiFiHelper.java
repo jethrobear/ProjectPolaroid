@@ -10,10 +10,13 @@ import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+
+import edu.fcpc.polaroid.packets.SentPackage;
 
 public abstract class WiFiHelper extends AsyncTask<String, Void, Integer> {
     protected ProgressDialog dialog;
@@ -44,10 +47,20 @@ public abstract class WiFiHelper extends AsyncTask<String, Void, Integer> {
                         Socket socket = new Socket(address.getHostAddress(), 1234);
                         ObjectOutputStream objOutStream = new ObjectOutputStream(socket.getOutputStream());
 
-                        return doInBackgroundInner(objOutStream, params);
+                        // Send the packet to the server
+                        doInBackgroundInner(objOutStream, params);
+
+                        // Receive message from the server
+                        ObjectInputStream objInStream = new ObjectInputStream(socket.getInputStream());
+                        SentPackage receivePackage = (SentPackage) objInStream.readObject();
+                        doInBackgroundPostSend(receivePackage, params);
+
+                        return 0;
                     }
                 } catch (IOException ioe) {
                     // TODO: The address had not opened port
+                } catch (ClassNotFoundException cnfe){
+                    // INFO: This should not enter this block
                 }
             }
 
@@ -88,4 +101,5 @@ public abstract class WiFiHelper extends AsyncTask<String, Void, Integer> {
     }
 
     public abstract Integer doInBackgroundInner(ObjectOutputStream objOutStream, String... params) throws IOException;
+    public abstract Integer doInBackgroundPostSend(SentPackage sentPackage, String... params) throws IOException;
 }

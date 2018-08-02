@@ -2,19 +2,13 @@ package edu.fcpc.polaroid;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
-import android.os.AsyncTask;
-import android.support.v4.app.FragmentTransaction;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
+
+import edu.fcpc.polaroid.packets.PackageStatus;
+import edu.fcpc.polaroid.packets.SentPackage;
 
 public class WiFiLoginHelper extends WiFiHelper {
     public WiFiLoginHelper(Activity main){
@@ -38,6 +32,17 @@ public class WiFiLoginHelper extends WiFiHelper {
         objOutStream.writeObject(sentPackage);
         objOutStream.flush();
         objOutStream.close();
+
+        return 0;
+    }
+
+    @Override
+    public Integer doInBackgroundPostSend(SentPackage sentPackage, String... params) throws IOException {
+        if(sentPackage.packageStatus == PackageStatus.LOGIN_RESPONSE_OK){
+            // TODO: Affirm that the member had logged in
+        }else if(sentPackage.packageStatus == PackageStatus.LOGIN_RESPONSE_FAIL){
+            // TODO: Affirm that the member had not been logged in
+        }
 
         return 0;
     }

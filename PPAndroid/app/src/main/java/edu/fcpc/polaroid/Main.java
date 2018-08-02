@@ -2,7 +2,6 @@ package edu.fcpc.polaroid;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.view.View;
 
 /**
  * Created by grump on 24/08/2017.

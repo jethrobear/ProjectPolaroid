@@ -1,20 +1,15 @@
 package edu.fcpc.polaroid;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.os.AsyncTask;
-import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
 
-import edu.fcpc.polaroid.SentPackage;
+import edu.fcpc.polaroid.packets.PackageStatus;
+import edu.fcpc.polaroid.packets.SentPackage;
 
 public class WiFiSendingHelper extends WiFiHelper {
     private Intent data;
@@ -48,6 +43,11 @@ public class WiFiSendingHelper extends WiFiHelper {
         objOutStream.close();
 
         return 0;
+    }
+
+    @Override
+    public Integer doInBackgroundPostSend(SentPackage sentPackage, String... params) throws IOException {
+        return null;
     }
 }
 
