@@ -40,6 +40,7 @@ public class WiFiHelper implements Runnable {
 				Socket socket = serverSocket.accept();
 				ObjectInputStream objInStream = new ObjectInputStream(socket.getInputStream());
 				SentPackage sentPackage = (SentPackage) objInStream.readObject();
+				SentPackage returnPackage = new SentPackage();
 			
 				// Process the data sent
 				if(sentPackage.packageStatus == PackageStatus.PICTURE) {
@@ -63,24 +64,40 @@ public class WiFiHelper implements Runnable {
 					boolean hasLogin = SQLHelper.loginUser(username, password);
 					
 					// Send the response to the client
-					SentPackage returnPackage = new SentPackage();
 					if(hasLogin)
 						returnPackage.packageStatus = PackageStatus.LOGIN_RESPONSE_OK;
 					else
 						returnPackage.packageStatus = PackageStatus.LOGIN_RESPONSE_FAIL;
-					ByteArrayOutputStream byteArrOutStream = new ByteArrayOutputStream();
-					ObjectOutputStream objOutStream = new ObjectOutputStream(byteArrOutStream);
-					objOutStream.writeObject(returnPackage);
-					objOutStream.flush();
-					objOutStream.close();
-					DataOutputStream dataOutStream = new DataOutputStream(socket.getOutputStream());
-					dataOutStream.write(byteArrOutStream.toByteArray());
-					dataOutStream.flush();
-					dataOutStream.close();
-					
 				}else if(sentPackage.packageStatus == PackageStatus.REGISTER) {
-					// TODO: Register the member
+					// Register the member
+					String lastname = sentPackage.lastname;
+					String firstname = sentPackage.firstname;
+					int birthmonth = Integer.parseInt(sentPackage.birthmonth);
+					int birthday = Integer.parseInt(sentPackage.birthday);
+					int birthyear = Integer.parseInt(sentPackage.birthyear);
+					String username = sentPackage.username;
+					String password = sentPackage.password;
+					String createRetMsg = SQLHelper.createUser(lastname, firstname, 
+							                                   birthmonth, birthday, birthyear,
+							                                   username, password);
+					
+					// Send the response to the client
+					if(createRetMsg.equals("PASS"))
+						returnPackage.packageStatus = PackageStatus.REGISTER_RESPONSE_OK;
+					else
+						returnPackage.packageStatus = PackageStatus.REGISTER_RESPONSE_FAIL;
+					returnPackage.retMessage = createRetMsg;
 				}
+				
+				ByteArrayOutputStream byteArrOutStream = new ByteArrayOutputStream();
+				ObjectOutputStream objOutStream = new ObjectOutputStream(byteArrOutStream);
+				objOutStream.writeObject(returnPackage);
+				objOutStream.flush();
+				objOutStream.close();
+				DataOutputStream dataOutStream = new DataOutputStream(socket.getOutputStream());
+				dataOutStream.write(byteArrOutStream.toByteArray());
+				dataOutStream.flush();
+				dataOutStream.close();
 			}catch(IOException ioe) {
 				// Retry
 				continue;
