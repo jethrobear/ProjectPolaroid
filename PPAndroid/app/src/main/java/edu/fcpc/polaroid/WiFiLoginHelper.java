@@ -36,31 +36,16 @@ public class WiFiLoginHelper extends WiFiHelper {
         return 0;
     }
 
-    @Override
-    public Integer doInBackgroundPostSend(SentPackage sentPackage, String... params) throws IOException {
-        if(sentPackage.packageStatus == PackageStatus.LOGIN_RESPONSE_OK){
-            // TODO: Affirm that the member had logged in
-        }else if(sentPackage.packageStatus == PackageStatus.LOGIN_RESPONSE_FAIL){
-            // TODO: Affirm that the member had not been logged in
-        }
-
-        return 0;
-    }
-
     private int retries = 0;
     @Override
-    protected void onPostExecute(Integer result)
-    {
-        super.onPostExecute(result);
-
-        boolean hasHit = (result == 1);
-        if(hasHit) {
+    public void onPostExecuteAfter(SentPackage sentPackage) {
+        if(sentPackage.packageStatus == PackageStatus.LOGIN_RESPONSE_OK) {
             // Login successful
 //            Fragment30 fragment30 = new Fragment30();
 //            FragmentTransaction fragmentTransaction = main.getFragmentManager().beginTransaction();
 //            fragmentTransaction.replace(R.id.main_frame, fragment30, fragment30.toString());
 //            fragmentTransaction.commit();
-        }else if(!hasHit && retries <= 1){
+        }else if(sentPackage.packageStatus == PackageStatus.LOGIN_RESPONSE_FAIL && retries <= 1){
             new AlertDialog.Builder(main)
                     .setTitle("Alert Box")
                     .setCancelable(false)

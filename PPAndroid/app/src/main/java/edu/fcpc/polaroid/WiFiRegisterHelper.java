@@ -46,13 +46,11 @@ public class WiFiRegisterHelper extends WiFiHelper {
     }
 
     @Override
-    public Integer doInBackgroundPostSend(SentPackage sentPackage, String... params) throws IOException {
+    public void onPostExecuteAfter(SentPackage sentPackage) {
         if(sentPackage.packageStatus == PackageStatus.REGISTER_RESPONSE_OK){
             // TODO: Affirm that the member had registered
         }else if(sentPackage.packageStatus == PackageStatus.REGISTER_RESPONSE_FAIL){
             // TODO: Affirm that the member had not been registered
         }
-
-        return 0;
     }
 }

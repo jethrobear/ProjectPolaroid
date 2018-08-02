@@ -53,16 +53,7 @@ public class Fragment20 extends Fragment {
                             }).create().show();
                 }
 
-                // TODO: Validate stuff
-//                DatabaseHelper databaseHelper = new DatabaseHelper(Fragment20.this.getContext());
-//                List<User> users = databaseHelper.getAllUsers();
-//                boolean hasHit = false;
-//                for (User user : users) {
-//                    if(user.getUsername().equals(txtUsername.getText().toString()) &&
-//                       user.getPassword().equals(txtPassword.getText().toString()))
-//                        hasHit = true;
-//                }
-                AsyncTask<String, Void, Integer> btLoginSendHlpr = new WiFiLoginHelper(Fragment20.this.getActivity());
+                WiFiLoginHelper btLoginSendHlpr = new WiFiLoginHelper(Fragment20.this.getActivity());
                 btLoginSendHlpr.execute(txtUsername.getText().toString(), txtPassword.getText().toString());
             }
         });

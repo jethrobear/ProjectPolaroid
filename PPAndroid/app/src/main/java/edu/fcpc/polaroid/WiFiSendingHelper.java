@@ -46,8 +46,8 @@ public class WiFiSendingHelper extends WiFiHelper {
     }
 
     @Override
-    public Integer doInBackgroundPostSend(SentPackage sentPackage, String... params) throws IOException {
-        return null;
+    public void onPostExecuteAfter(SentPackage sentPackage) {
+        // TODO: Affirm the image have been received
     }
 }
 

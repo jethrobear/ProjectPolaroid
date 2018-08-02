@@ -16,9 +16,10 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+import edu.fcpc.polaroid.packets.PackageStatus;
 import edu.fcpc.polaroid.packets.SentPackage;
 
-public abstract class WiFiHelper extends AsyncTask<String, Void, Integer> {
+public abstract class WiFiHelper extends AsyncTask<String, Void, SentPackage> {
     protected ProgressDialog dialog;
     protected Activity main;
 
@@ -29,7 +30,9 @@ public abstract class WiFiHelper extends AsyncTask<String, Void, Integer> {
     }
 
     @Override
-    protected Integer doInBackground(String... params) {
+    protected SentPackage doInBackground(String... params) {
+        SentPackage errorPackage = new SentPackage();
+
         try {
             WifiManager mWifiManager = (WifiManager) main.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
             WifiInfo mWifiInfo = mWifiManager.getConnectionInfo();
@@ -53,9 +56,8 @@ public abstract class WiFiHelper extends AsyncTask<String, Void, Integer> {
                         // Receive message from the server
                         ObjectInputStream objInStream = new ObjectInputStream(socket.getInputStream());
                         SentPackage receivePackage = (SentPackage) objInStream.readObject();
-                        doInBackgroundPostSend(receivePackage, params);
 
-                        return 0;
+                        return receivePackage;
                     }
                 } catch (IOException ioe) {
                     // TODO: The address had not opened port
@@ -64,18 +66,20 @@ public abstract class WiFiHelper extends AsyncTask<String, Void, Integer> {
                 }
             }
 
-            return -2;
+            errorPackage.packageStatus = PackageStatus.NO_SERVER_FOUND;
         } catch (UnknownHostException uhe) {
-            return -1 * Integer.MAX_VALUE;
+            errorPackage.packageStatus = PackageStatus.HOSTNAME_NOT_FOUND;
+            errorPackage.retMessage = uhe.getMessage();
         }
+        return errorPackage;
     }
 
     @Override
-    protected void onPostExecute(Integer result) {
+    protected void onPostExecute(SentPackage result) {
         dialog.dismiss();
 
         // General issues
-        if (result == -1 * Integer.MAX_VALUE){
+        if (result.packageStatus == PackageStatus.HOSTNAME_NOT_FOUND){
             new AlertDialog.Builder(main)
                     .setTitle("Alert Box")
                     .setCancelable(false)
@@ -86,7 +90,7 @@ public abstract class WiFiHelper extends AsyncTask<String, Void, Integer> {
                             System.exit(0);
                         }
                     }).create().show();
-        }else if(result == -2){
+        }else if(result.packageStatus == PackageStatus.NO_SERVER_FOUND){
             new AlertDialog.Builder(main)
                     .setTitle("Alert Box")
                     .setCancelable(false)
@@ -97,9 +101,11 @@ public abstract class WiFiHelper extends AsyncTask<String, Void, Integer> {
                             System.exit(0);
                         }
                     }).create().show();
+        }else {
+            onPostExecuteAfter(result);
         }
     }
 
     public abstract Integer doInBackgroundInner(ObjectOutputStream objOutStream, String... params) throws IOException;
-    public abstract Integer doInBackgroundPostSend(SentPackage sentPackage, String... params) throws IOException;
+    public abstract void onPostExecuteAfter(SentPackage sentPackage);
 }
