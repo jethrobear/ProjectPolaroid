@@ -1,23 +1,12 @@
 package edu.fcpc.polaroid;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothServerSocket;
-import android.bluetooth.BluetoothSocket;
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.os.AsyncTask;
-import android.widget.Toast;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.nio.charset.Charset;
-import java.util.UUID;
+
+import edu.fcpc.polaroid.packets.PackageStatus;
+import edu.fcpc.polaroid.packets.SentPackage;
 
 /**
  * Created by PAULM915 on 11/08/2017.
@@ -54,5 +43,14 @@ public class WiFiRegisterHelper extends WiFiHelper {
         objOutStream.close();
 
         return 0;
+    }
+
+    @Override
+    public void onPostExecuteAfter(SentPackage sentPackage) {
+        if(sentPackage.packageStatus == PackageStatus.REGISTER_RESPONSE_OK){
+            // TODO: Affirm that the member had registered
+        }else if(sentPackage.packageStatus == PackageStatus.REGISTER_RESPONSE_FAIL){
+            // TODO: Affirm that the member had not been registered
+        }
     }
 }

@@ -2,19 +2,13 @@ package edu.fcpc.polaroid;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
-import android.os.AsyncTask;
-import android.support.v4.app.FragmentTransaction;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
+
+import edu.fcpc.polaroid.packets.PackageStatus;
+import edu.fcpc.polaroid.packets.SentPackage;
 
 public class WiFiLoginHelper extends WiFiHelper {
     public WiFiLoginHelper(Activity main){
@@ -44,18 +38,14 @@ public class WiFiLoginHelper extends WiFiHelper {
 
     private int retries = 0;
     @Override
-    protected void onPostExecute(Integer result)
-    {
-        super.onPostExecute(result);
-
-        boolean hasHit = (result == 1);
-        if(hasHit) {
+    public void onPostExecuteAfter(SentPackage sentPackage) {
+        if(sentPackage.packageStatus == PackageStatus.LOGIN_RESPONSE_OK) {
             // Login successful
 //            Fragment30 fragment30 = new Fragment30();
 //            FragmentTransaction fragmentTransaction = main.getFragmentManager().beginTransaction();
 //            fragmentTransaction.replace(R.id.main_frame, fragment30, fragment30.toString());
 //            fragmentTransaction.commit();
-        }else if(!hasHit && retries <= 1){
+        }else if(sentPackage.packageStatus == PackageStatus.LOGIN_RESPONSE_FAIL && retries <= 1){
             new AlertDialog.Builder(main)
                     .setTitle("Alert Box")
                     .setCancelable(false)

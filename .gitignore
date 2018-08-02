@@ -109,3 +109,5 @@ PPJava/bin
 PPAndroid/.*
 PPAndroid/local.properties
 *.iml
+*.txt
+*.db
