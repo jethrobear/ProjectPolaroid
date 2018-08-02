@@ -71,6 +71,7 @@ public class Fragment21 extends Fragment {
                 }
             }
         });
+        // TODO: Move after registering
 
         return rootView;
     }
