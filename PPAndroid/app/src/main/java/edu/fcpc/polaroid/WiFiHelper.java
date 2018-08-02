@@ -35,7 +35,7 @@ public abstract class WiFiHelper extends AsyncTask<String, Void, SentPackage> {
 
         try {
             WifiManager mWifiManager = (WifiManager) main.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-            WifiInfo mWifiInfo = mWifiManager.getConnectionInfo();
+            //WifiInfo mWifiInfo = mWifiManager.getConnectionInfo();
             int subnet = mWifiManager.getDhcpInfo().gateway;
             byte[] ipBytes = new byte[]{(byte) (subnet & 0xff),
                     (byte) (subnet >> 8 & 0xff),
