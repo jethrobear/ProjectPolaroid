@@ -31,7 +31,6 @@ public class WiFiLoginHelper extends WiFiHelper {
 
         objOutStream.writeObject(sentPackage);
         objOutStream.flush();
-        objOutStream.close();
 
         return 0;
     }
@@ -52,10 +51,10 @@ public class WiFiLoginHelper extends WiFiHelper {
                     .setMessage("Wrong username and password")
                     .setNeutralButton("Retry", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
+                            retries = retries++;
                             dialog.dismiss();
                         }
                     }).create().show();
-            retries++;
         }else{
             new AlertDialog.Builder(main)
                     .setTitle("Alert Box")

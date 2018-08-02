@@ -82,6 +82,13 @@ public class WiFiHelper implements Runnable {
 							                                   username, password);
 					
 					// Send the response to the client
+					returnPackage.lastname = lastname;
+					returnPackage.firstname = firstname;
+					returnPackage.birthmonth = String.valueOf(birthmonth);
+					returnPackage.birthday = String.valueOf(birthday);
+					returnPackage.birthyear = String.valueOf(birthyear);
+					returnPackage.username = username;
+					returnPackage.password = password;
 					if(createRetMsg.equals("PASS"))
 						returnPackage.packageStatus = PackageStatus.REGISTER_RESPONSE_OK;
 					else
@@ -89,15 +96,11 @@ public class WiFiHelper implements Runnable {
 					returnPackage.retMessage = createRetMsg;
 				}
 				
-				ByteArrayOutputStream byteArrOutStream = new ByteArrayOutputStream();
-				ObjectOutputStream objOutStream = new ObjectOutputStream(byteArrOutStream);
+				ObjectOutputStream objOutStream = new ObjectOutputStream(socket.getOutputStream());
 				objOutStream.writeObject(returnPackage);
 				objOutStream.flush();
 				objOutStream.close();
-				DataOutputStream dataOutStream = new DataOutputStream(socket.getOutputStream());
-				dataOutStream.write(byteArrOutStream.toByteArray());
-				dataOutStream.flush();
-				dataOutStream.close();
+				socket.close();
 			}catch(IOException ioe) {
 				// Retry
 				continue;

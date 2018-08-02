@@ -40,7 +40,6 @@ public class WiFiSendingHelper extends WiFiHelper {
 
         objOutStream.writeObject(sentPackage);
         objOutStream.flush();
-        objOutStream.close();
 
         return 0;
     }
