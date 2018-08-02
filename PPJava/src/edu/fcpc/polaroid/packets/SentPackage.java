@@ -2,7 +2,7 @@ package edu.fcpc.polaroid.packets;
 
 import java.io.Serializable;
 
-public class SentPackage implements Serializable {
+public class SentPackage implements Serializable{
     public PackageStatus packageStatus;
 
     // Images metadata
@@ -17,6 +17,10 @@ public class SentPackage implements Serializable {
     public String birthday;
     public String birthyear;
 
+    // Credentials
     public String username;
     public String password;
+    
+    // Return message
+    public String retMessage;
 }

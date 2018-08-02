@@ -17,6 +17,10 @@ public class SentPackage implements Serializable{
     public String birthday;
     public String birthyear;
 
+    // Credentials
     public String username;
     public String password;
+    
+    // Return message
+    public String retMessage;
 }

@@ -1,7 +1,12 @@
-package edu.fcpc.polaroid;
+package edu.fcpc.polaroid.packets;
 
 public enum PackageStatus {
 	LOGIN,
 	REGISTER,
-	PICTURE
+	PICTURE,
+	
+	LOGIN_RESPONSE_OK,
+	LOGIN_RESPONSE_FAIL,
+	REGISTER_RESPONSE_OK,
+	REGISTER_RESPONSE_FAIL
 }
