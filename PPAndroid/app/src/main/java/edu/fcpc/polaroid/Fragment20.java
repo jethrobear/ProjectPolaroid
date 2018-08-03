@@ -56,6 +56,7 @@ public class Fragment20 extends Fragment {
                 btLoginSendHlpr.execute(txtUsername.getText().toString(), txtPassword.getText().toString());
             }
         });
+		// TODO: Move after logging in
 
         return rootView;
     }

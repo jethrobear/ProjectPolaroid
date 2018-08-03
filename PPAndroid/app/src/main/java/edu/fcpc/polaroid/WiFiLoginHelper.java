@@ -2,6 +2,7 @@ package edu.fcpc.polaroid;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 
 import java.io.IOException;
@@ -31,7 +32,6 @@ public class WiFiLoginHelper extends WiFiHelper {
 
         objOutStream.writeObject(sentPackage);
         objOutStream.flush();
-        objOutStream.close();
 
         return 0;
     }
@@ -39,12 +39,12 @@ public class WiFiLoginHelper extends WiFiHelper {
     private int retries = 0;
     @Override
     public void onPostExecuteAfter(SentPackage sentPackage) {
-        if(sentPackage.packageStatus == PackageStatus.LOGIN_RESPONSE_OK) {
+        if(sentPackage.packageStatus == PackageStatus.LOGIN_RESPONSE_OK || sentPackage.packageStatus == PackageStatus.NETWORK_BYPASS) {
             // Login successful
-//            Fragment30 fragment30 = new Fragment30();
-//            FragmentTransaction fragmentTransaction = main.getFragmentManager().beginTransaction();
-//            fragmentTransaction.replace(R.id.main_frame, fragment30, fragment30.toString());
-//            fragmentTransaction.commit();
+            Fragment30 fragment30 = new Fragment30();
+            FragmentTransaction fragmentTransaction = main.getFragmentManager().beginTransaction();
+            fragmentTransaction.replace(R.id.main_frame, fragment30, fragment30.toString());
+            fragmentTransaction.commit();
         }else if(sentPackage.packageStatus == PackageStatus.LOGIN_RESPONSE_FAIL && retries <= 1){
             new AlertDialog.Builder(main)
                     .setTitle("Alert Box")
@@ -52,10 +52,10 @@ public class WiFiLoginHelper extends WiFiHelper {
                     .setMessage("Wrong username and password")
                     .setNeutralButton("Retry", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
+                            retries = retries++;
                             dialog.dismiss();
                         }
                     }).create().show();
-            retries++;
         }else{
             new AlertDialog.Builder(main)
                     .setTitle("Alert Box")

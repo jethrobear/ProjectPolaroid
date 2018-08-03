@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -71,7 +72,14 @@ public abstract class WiFiHelper extends AsyncTask<String, Void, SentPackage> {
             errorPackage.packageStatus = PackageStatus.HOSTNAME_NOT_FOUND;
             errorPackage.retMessage = uhe.getMessage();
         }
-        return errorPackage;
+
+        if(!main.getString(R.string.allownetworkbypass).toUpperCase().equals("TRUE"))
+            return errorPackage;
+        else{
+            SentPackage networkBypass = new SentPackage();
+            networkBypass.packageStatus = PackageStatus.NETWORK_BYPASS;
+            return networkBypass;
+        }
     }
 
     @Override
@@ -101,7 +109,18 @@ public abstract class WiFiHelper extends AsyncTask<String, Void, SentPackage> {
                             System.exit(0);
                         }
                     }).create().show();
-        }else {
+        }else{
+            if(result.packageStatus == PackageStatus.NETWORK_BYPASS)
+                new AlertDialog.Builder(main)
+                        .setTitle("Warning")
+                        .setCancelable(false)
+                        .setMessage("Assuming Network Bypass, proceed with warning")
+                        .setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                // Do nothing
+                            }
+                        }).create().show();
             onPostExecuteAfter(result);
         }
     }

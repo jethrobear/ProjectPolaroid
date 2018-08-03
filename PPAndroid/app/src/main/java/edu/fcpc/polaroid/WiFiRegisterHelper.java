@@ -1,6 +1,8 @@
 package edu.fcpc.polaroid;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -40,7 +42,6 @@ public class WiFiRegisterHelper extends WiFiHelper {
 
         objOutStream.writeObject(sentPackage);
         objOutStream.flush();
-        objOutStream.close();
 
         return 0;
     }
@@ -48,9 +49,27 @@ public class WiFiRegisterHelper extends WiFiHelper {
     @Override
     public void onPostExecuteAfter(SentPackage sentPackage) {
         if(sentPackage.packageStatus == PackageStatus.REGISTER_RESPONSE_OK){
-            // TODO: Affirm that the member had registered
+            new AlertDialog.Builder(main)
+                    .setTitle("Register")
+                    .setCancelable(false)
+                    .setMessage(String.format("%s %s has been registered", sentPackage.firstname, sentPackage.lastname))
+                    .setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            main.getFragmentManager().popBackStackImmediate();
+                        }
+                    }).create().show();
         }else if(sentPackage.packageStatus == PackageStatus.REGISTER_RESPONSE_FAIL){
-            // TODO: Affirm that the member had not been registered
+            new AlertDialog.Builder(main)
+                    .setTitle("Register")
+                    .setCancelable(false)
+                    .setMessage(sentPackage.retMessage)
+                    .setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            // INFO: Do nothing
+                        }
+                    }).create().show();
         }
     }
 }

@@ -4,6 +4,7 @@ package edu.fcpc.polaroid;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +33,7 @@ public class Fragment10 extends Fragment {
                 Fragment20 fragment20 = new Fragment20();
                 FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
                 fragmentTransaction.replace(R.id.main_frame, fragment20, fragment20.toString());
+                fragmentTransaction.addToBackStack(null);
                 fragmentTransaction.commit();
             }
         });
@@ -43,11 +45,11 @@ public class Fragment10 extends Fragment {
                 Fragment21 fragment21 = new Fragment21();
                 FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
                 fragmentTransaction.replace(R.id.main_frame, fragment21, fragment21.toString());
+                fragmentTransaction.addToBackStack(null);
                 fragmentTransaction.commit();
             }
         });
 
         return rootView;
     }
-
 }

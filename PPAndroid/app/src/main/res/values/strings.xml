@@ -1,5 +1,4 @@
 <resources>
     <string name="app_name">Polaroid Digital Frame</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
+    <string name="allownetworkbypass">true</string>
 </resources>
