@@ -40,18 +40,6 @@ public class WiFiLoginHelper extends WiFiHelper {
     @Override
     public void onPostExecuteAfter(SentPackage sentPackage) {
         if(sentPackage.packageStatus == PackageStatus.LOGIN_RESPONSE_OK || sentPackage.packageStatus == PackageStatus.NETWORK_BYPASS) {
-            if(sentPackage.packageStatus == PackageStatus.NETWORK_BYPASS)
-                new AlertDialog.Builder(main)
-                        .setTitle("Warning")
-                        .setCancelable(false)
-                        .setMessage("Assuming Network Bypass, proceed with warning")
-                        .setNeutralButton("OK", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                // Do nothing
-                            }
-                        }).create().show();
-
             // Login successful
             Fragment30 fragment30 = new Fragment30();
             FragmentTransaction fragmentTransaction = main.getFragmentManager().beginTransaction();

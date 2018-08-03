@@ -110,6 +110,17 @@ public abstract class WiFiHelper extends AsyncTask<String, Void, SentPackage> {
                         }
                     }).create().show();
         }else{
+            if(result.packageStatus == PackageStatus.NETWORK_BYPASS)
+                new AlertDialog.Builder(main)
+                        .setTitle("Warning")
+                        .setCancelable(false)
+                        .setMessage("Assuming Network Bypass, proceed with warning")
+                        .setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                // Do nothing
+                            }
+                        }).create().show();
             onPostExecuteAfter(result);
         }
     }

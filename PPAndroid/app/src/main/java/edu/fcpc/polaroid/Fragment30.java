@@ -9,11 +9,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,7 +31,7 @@ import java.util.Date;
  */
 public class Fragment30 extends Fragment {
     private Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-    
+
     public Fragment30() {
         // Required empty public constructor
     }
@@ -41,17 +41,18 @@ public class Fragment30 extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_30, container, false);
 
-		Button btnCamera = (Button) rootView.findViewById(R.id.btnCamera);
-		
-		btnCamera.setOnClickListener(new View.OnClickListener() {
+        Button btnCamera = (Button) rootView.findViewById(R.id.btnCamera);
+
+        btnCamera.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // Here, thisActivity is the current activity
-                if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                    getActivity().requestPermissions( new String[]{Manifest.permission.CAMERA}, 1);
-                } else {
-                    // Permission has already been granted
-                    startActivityForResult(cameraIntent, 0);
-                }
+                if (Build.VERSION.SDK_INT >= 23)
+                    if (getContext().checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                        getActivity().requestPermissions(new String[]{Manifest.permission.CAMERA}, 1);
+                    } else {
+                        // Permission has already been granted
+                        startActivityForResult(cameraIntent, 0);
+                    }
             }
         });
 
@@ -60,8 +61,8 @@ public class Fragment30 extends Fragment {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if(requestCode == 1){
-            if(grantResults.length == 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED)
+        if (requestCode == 1) {
+            if (grantResults.length == 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED)
                 new AlertDialog.Builder(getActivity())
                         .setTitle("Permissions")
                         .setCancelable(false)
@@ -79,9 +80,9 @@ public class Fragment30 extends Fragment {
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data){
-        if(resultCode == Activity.RESULT_OK){
-            AlertDialog.Builder dialog = new AlertDialog.Builder(this.getContext());
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == Activity.RESULT_OK) {
+            AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
             dialog.setTitle("Alert Box")
                     .setMessage("Do you want to send this captured photo to the digital frame?")
                     .setPositiveButton("Yes", new Fragment30.AcceptSend(this.getActivity(), data))
@@ -90,32 +91,32 @@ public class Fragment30 extends Fragment {
         }
     }
 
-    class AcceptSend implements DialogInterface.OnClickListener{
+    class AcceptSend implements DialogInterface.OnClickListener {
         private Activity main;
         private Intent data;
 
-        public AcceptSend(Activity main, Intent data){
+        public AcceptSend(Activity main, Intent data) {
             this.main = main;
             this.data = data;
         }
 
         @Override
         public void onClick(DialogInterface dialog, int which) {
-            if(data != null)
+            if (data != null)
                 new WiFiSendingHelper(main, data).execute();
         }
     }
 
-    class AcceptSave implements DialogInterface.OnClickListener{
+    class AcceptSave implements DialogInterface.OnClickListener {
         private Intent data;
 
-        public AcceptSave(Intent data){
+        public AcceptSave(Intent data) {
             this.data = data;
         }
 
         @Override
         public void onClick(DialogInterface dialog, int which) {
-            if(data != null) {
+            if (data != null) {
                 String destPath = Environment.getExternalStorageDirectory().getPath() + File.separatorChar + "IMG_" +
                         new SimpleDateFormat("ddMMyyyy").format(new Date()) + ".jpg";
                 try {
@@ -133,15 +134,16 @@ public class Fragment30 extends Fragment {
         }
     }
 
-    class DeclineOption implements DialogInterface.OnClickListener{
+    class DeclineOption implements DialogInterface.OnClickListener {
         private Activity main;
-        public DeclineOption(Activity main){
+
+        public DeclineOption(Activity main) {
             this.main = main;
         }
 
         @Override
         public void onClick(DialogInterface dialog, int which) {
-            if(main != null) {
+            if (main != null) {
                 Toast.makeText(main, "Photo discarded", Toast.LENGTH_SHORT).show();
             }
         }
