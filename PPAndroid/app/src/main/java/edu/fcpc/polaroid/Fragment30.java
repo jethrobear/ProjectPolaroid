@@ -1,15 +1,19 @@
 package edu.fcpc.polaroid;
 
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,12 +30,11 @@ import java.util.Date;
  * A simple {@link Fragment} subclass.
  */
 public class Fragment30 extends Fragment {
-
-
+    private Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+    
     public Fragment30() {
         // Required empty public constructor
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -42,12 +45,37 @@ public class Fragment30 extends Fragment {
 		
 		btnCamera.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Intent a = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                startActivityForResult(a, 0);
+                // Here, thisActivity is the current activity
+                if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                    getActivity().requestPermissions( new String[]{Manifest.permission.CAMERA}, 1);
+                } else {
+                    // Permission has already been granted
+                    startActivityForResult(cameraIntent, 0);
+                }
             }
         });
 
         return rootView;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if(requestCode == 1){
+            if(grantResults.length == 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED)
+                new AlertDialog.Builder(getActivity())
+                        .setTitle("Permissions")
+                        .setCancelable(false)
+                        .setMessage("Allow the app to use the camera to proceed")
+                        .setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                System.exit(-1);
+                            }
+                        }).create().show();
+            else {
+                startActivityForResult(cameraIntent, 0);
+            }
+        }
     }
 
     @Override

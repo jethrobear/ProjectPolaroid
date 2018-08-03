@@ -2,6 +2,7 @@ package edu.fcpc.polaroid;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 
 import java.io.IOException;
@@ -38,12 +39,24 @@ public class WiFiLoginHelper extends WiFiHelper {
     private int retries = 0;
     @Override
     public void onPostExecuteAfter(SentPackage sentPackage) {
-        if(sentPackage.packageStatus == PackageStatus.LOGIN_RESPONSE_OK) {
+        if(sentPackage.packageStatus == PackageStatus.LOGIN_RESPONSE_OK || sentPackage.packageStatus == PackageStatus.NETWORK_BYPASS) {
+            if(sentPackage.packageStatus == PackageStatus.NETWORK_BYPASS)
+                new AlertDialog.Builder(main)
+                        .setTitle("Warning")
+                        .setCancelable(false)
+                        .setMessage("Assuming Network Bypass, proceed with warning")
+                        .setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                // Do nothing
+                            }
+                        }).create().show();
+
             // Login successful
-//            Fragment30 fragment30 = new Fragment30();
-//            FragmentTransaction fragmentTransaction = main.getFragmentManager().beginTransaction();
-//            fragmentTransaction.replace(R.id.main_frame, fragment30, fragment30.toString());
-//            fragmentTransaction.commit();
+            Fragment30 fragment30 = new Fragment30();
+            FragmentTransaction fragmentTransaction = main.getFragmentManager().beginTransaction();
+            fragmentTransaction.replace(R.id.main_frame, fragment30, fragment30.toString());
+            fragmentTransaction.commit();
         }else if(sentPackage.packageStatus == PackageStatus.LOGIN_RESPONSE_FAIL && retries <= 1){
             new AlertDialog.Builder(main)
                     .setTitle("Alert Box")

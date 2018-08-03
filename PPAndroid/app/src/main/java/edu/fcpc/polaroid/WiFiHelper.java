@@ -72,7 +72,14 @@ public abstract class WiFiHelper extends AsyncTask<String, Void, SentPackage> {
             errorPackage.packageStatus = PackageStatus.HOSTNAME_NOT_FOUND;
             errorPackage.retMessage = uhe.getMessage();
         }
-        return errorPackage;
+
+        if(!main.getString(R.string.allownetworkbypass).toUpperCase().equals("TRUE"))
+            return errorPackage;
+        else{
+            SentPackage networkBypass = new SentPackage();
+            networkBypass.packageStatus = PackageStatus.NETWORK_BYPASS;
+            return networkBypass;
+        }
     }
 
     @Override
@@ -102,7 +109,7 @@ public abstract class WiFiHelper extends AsyncTask<String, Void, SentPackage> {
                             System.exit(0);
                         }
                     }).create().show();
-        }else {
+        }else{
             onPostExecuteAfter(result);
         }
     }
