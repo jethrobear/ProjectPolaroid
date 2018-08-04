@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/fragment_20"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:id="@+id/fragment_20">
+    android:orientation="vertical">
 
     <Space
         android:layout_width="match_parent"
@@ -13,12 +13,14 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Username"/>
+        android:text="Username" />
 
     <EditText
+        android:id="@+id/txtUsername"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/txtUsername"/>
+        android:inputType="text"
+        android:maxLines="1" />
 
     <TextView
         android:layout_width="match_parent"
@@ -29,7 +31,8 @@
         android:id="@+id/txtPassword"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="textPassword" />
+        android:inputType="textPassword"
+        android:maxLines="1" />
 
     <Button
         android:id="@+id/btnLogin2"

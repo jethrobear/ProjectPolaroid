@@ -12,7 +12,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Name"/>
+        android:text="Name" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -29,7 +29,10 @@
                 android:id="@+id/txtLastname"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textPersonName"/>
+                android:inputType="textPersonName"
+                android:maxLines="1"
+                android:nextFocusForward="@id/txtFirstname"
+                android:nextFocusDown="@id/txtFirstname"/>
 
             <TextView
                 android:layout_width="match_parent"
@@ -47,7 +50,10 @@
                 android:id="@+id/txtFirstname"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textPersonName" />
+                android:inputType="textPersonName"
+                android:maxLines="1"
+                android:nextFocusForward="@id/txtRegisterMonth"
+                android:nextFocusDown="@id/txtRegisterMonth"/>
 
             <TextView
                 android:layout_width="match_parent"
@@ -59,7 +65,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Birth Date"/>
+        android:text="Birth Date" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -76,7 +82,10 @@
                 android:id="@+id/txtRegisterMonth"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="number" />
+                android:inputType="number"
+                android:maxLines="1"
+                android:nextFocusForward="@id/txtRegisterDay"
+                android:nextFocusDown="@id/txtRegisterDay"/>
 
             <TextView
                 android:layout_width="match_parent"
@@ -94,7 +103,10 @@
                 android:id="@+id/txtRegisterDay"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="number" />
+                android:inputType="number"
+                android:maxLines="1"
+                android:nextFocusForward="@id/txtRegisterYear"
+                android:nextFocusDown="@id/txtRegisterYear" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -112,7 +124,10 @@
                 android:id="@+id/txtRegisterYear"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="number" />
+                android:inputType="number"
+                android:maxLines="1"
+                android:nextFocusForward="@id/txtUsername2"
+                android:nextFocusDown="@id/txtUsername2"/>
 
             <TextView
                 android:layout_width="match_parent"
@@ -124,23 +139,30 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Username"/>
+        android:text="Username" />
 
     <EditText
+        android:id="@+id/txtUsername2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/txtUsername2"/>
+        android:inputType="text"
+        android:maxLines="1"
+        android:nextFocusForward="@id/txtPassword2"
+        android:nextFocusDown="@id/txtPassword2"/>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Password"/>
+        android:text="Password" />
 
     <EditText
         android:id="@+id/txtPassword2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="textPassword" />
+        android:inputType="textPassword"
+        android:maxLines="1"
+        android:nextFocusForward="@id/btnRegister"
+        android:nextFocusDown="@id/btnRegister"/>
 
     <Button
         android:id="@+id/btnRegister"
