@@ -30,7 +30,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textPersonName"
-                android:maxLines="1" />
+                android:maxLines="1"
+                android:nextFocusForward="@id/txtFirstname"
+                android:nextFocusDown="@id/txtFirstname"/>
 
             <TextView
                 android:layout_width="match_parent"
@@ -49,7 +51,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textPersonName"
-                android:maxLines="1" />
+                android:maxLines="1"
+                android:nextFocusForward="@id/txtRegisterMonth"
+                android:nextFocusDown="@id/txtRegisterMonth"/>
 
             <TextView
                 android:layout_width="match_parent"
@@ -79,7 +83,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="number"
-                android:maxLines="1" />
+                android:maxLines="1"
+                android:nextFocusForward="@id/txtRegisterDay"
+                android:nextFocusDown="@id/txtRegisterDay"/>
 
             <TextView
                 android:layout_width="match_parent"
@@ -98,7 +104,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="number"
-                android:maxLines="1" />
+                android:maxLines="1"
+                android:nextFocusForward="@id/txtRegisterYear"
+                android:nextFocusDown="@id/txtRegisterYear" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -117,7 +125,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="number"
-                android:maxLines="1" />
+                android:maxLines="1"
+                android:nextFocusForward="@id/txtUsername2"
+                android:nextFocusDown="@id/txtUsername2"/>
 
             <TextView
                 android:layout_width="match_parent"
@@ -136,7 +146,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="text"
-        android:maxLines="1" />
+        android:maxLines="1"
+        android:nextFocusForward="@id/txtPassword2"
+        android:nextFocusDown="@id/txtPassword2"/>
 
     <TextView
         android:layout_width="match_parent"
@@ -148,7 +160,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="textPassword"
-        android:maxLines="1" />
+        android:maxLines="1"
+        android:nextFocusForward="@id/btnRegister"
+        android:nextFocusDown="@id/btnRegister"/>
 
     <Button
         android:id="@+id/btnRegister"
