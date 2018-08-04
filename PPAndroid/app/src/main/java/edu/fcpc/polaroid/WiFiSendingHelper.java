@@ -1,6 +1,8 @@
 package edu.fcpc.polaroid;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 
@@ -46,7 +48,28 @@ public class WiFiSendingHelper extends WiFiHelper {
 
     @Override
     public void onPostExecuteAfter(SentPackage sentPackage) {
-        // TODO: Affirm the image have been received
+        if(sentPackage.packageStatus == PackageStatus.PICTURE_RESPONSE_OK)
+            new AlertDialog.Builder(main)
+                    .setTitle("Picture")
+                    .setCancelable(false)
+                    .setMessage("Picture successfully sent to the server")
+                    .setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    }).create().show();
+        else if(sentPackage.packageStatus == PackageStatus.PICTURE_RESPONSE_FAIL)
+            new AlertDialog.Builder(main)
+                    .setTitle("Picture")
+                    .setCancelable(false)
+                    .setMessage(sentPackage.retMessage)
+                    .setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    }).create().show();
     }
 }
 
