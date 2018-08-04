@@ -1,14 +1,9 @@
 package edu.fcpc.polaroid;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
-import android.app.Activity;
-
-/**
- * Created by grump on 24/08/2017.
- */
 
 public class Main extends Activity {
     public void onCreate(Bundle savedInstanceState) {

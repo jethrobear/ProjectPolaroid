@@ -13,6 +13,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
+import edu.fcpc.polaroid.wifi.WiFiRegisterHelper;
+
 /**
  * A simple {@link Fragment} subclass.
  */

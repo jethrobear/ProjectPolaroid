@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import edu.fcpc.polaroid.wifi.WiFiSendingHelper;
+
 /**
  * A simple {@link Fragment} subclass.
  */
