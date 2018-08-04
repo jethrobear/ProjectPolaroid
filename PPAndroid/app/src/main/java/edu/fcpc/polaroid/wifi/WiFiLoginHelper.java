@@ -65,10 +65,10 @@ public class WiFiLoginHelper extends WiFiHelper {
                     .setMessage("Username and password not valid. Create a new user?")
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
-//                            Fragment21 fragment21 = new Fragment21();
-//                            FragmentTransaction fragmentTransaction = main.getFragmentManager().beginTransaction();
-//                            fragmentTransaction.replace(R.id.main_frame, fragment21, fragment21.toString());
-//                            fragmentTransaction.commit();
+                            Fragment21 fragment21 = new Fragment21();
+                            FragmentTransaction fragmentTransaction = main.getFragmentManager().beginTransaction();
+                            fragmentTransaction.replace(R.id.main_frame, fragment21, fragment21.toString());
+                            fragmentTransaction.commit();
                         }
                     })
                     .setNegativeButton("No", new DialogInterface.OnClickListener() {
