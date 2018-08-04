@@ -45,10 +45,10 @@ public class Fragment30 extends Fragment {
 
         btnCamera.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                // Here, thisActivity is the current activity
+                // Check if we have the permission to start CAMERA intent
                 if (Build.VERSION.SDK_INT >= 23)
                     if (getContext().checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                        getActivity().requestPermissions(new String[]{Manifest.permission.CAMERA}, 1);
+                        requestPermissions(new String[]{Manifest.permission.CAMERA}, PermissionResults.CAMERA_INTENT_AFTER_LOGIN.ordinal());
                     } else {
                         // Permission has already been granted
                         startActivityForResult(cameraIntent, 0);
@@ -61,7 +61,7 @@ public class Fragment30 extends Fragment {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == 1) {
+        if (requestCode == PermissionResults.CAMERA_INTENT_AFTER_LOGIN.ordinal()) {
             if (grantResults.length == 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED)
                 new AlertDialog.Builder(getActivity())
                         .setTitle("Permissions")
@@ -70,12 +70,35 @@ public class Fragment30 extends Fragment {
                         .setNeutralButton("OK", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                System.exit(-1);
+                                dialogInterface.dismiss();
                             }
                         }).create().show();
             else {
                 startActivityForResult(cameraIntent, 0);
             }
+        } else if (requestCode == PermissionResults.WRITE_EXT_STORAGE_ON_DEMAND.ordinal()) {
+            if (grantResults.length == 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED)
+                new AlertDialog.Builder(getActivity())
+                        .setTitle("Permissions")
+                        .setCancelable(false)
+                        .setMessage("Allow the app to use the device storage to proceed")
+                        .setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                            }
+                        }).create().show();
+            else
+                new AlertDialog.Builder(Fragment30.this.getActivity())
+                        .setTitle("Create image file")
+                        .setCancelable(false)
+                        .setMessage("The app just received the permission to save and was not able to save the previous file")
+                        .setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                            }
+                        }).create().show();
         }
     }
 
@@ -117,6 +140,13 @@ public class Fragment30 extends Fragment {
         @Override
         public void onClick(DialogInterface dialog, int which) {
             if (data != null) {
+                // Check if we have the permission to start WRITE_EXTERNAL intent
+                if (Build.VERSION.SDK_INT >= 23)
+                    if (getContext().checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                        requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PermissionResults.WRITE_EXT_STORAGE_ON_DEMAND.ordinal());
+                    }
+
+                // Permission has already been granted
                 String destPath = Environment.getExternalStorageDirectory().getPath() + File.separatorChar + "IMG_" +
                         new SimpleDateFormat("ddMMyyyy").format(new Date()) + ".jpg";
                 try {
@@ -126,7 +156,7 @@ public class Fragment30 extends Fragment {
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutStream);
                     fileOutStream.flush();
                     fileOutStream.close();
-                    MediaStore.Images.Media.insertImage(Fragment30.this.getContext().getContentResolver(), file.getAbsolutePath(), file.getName(), file.getName());
+                    MediaStore.Images.Media.insertImage(Fragment30.this.getActivity().getContentResolver(), file.getAbsolutePath(), file.getName(), file.getName());
                 } catch (IOException ioe) {
 
                 }
