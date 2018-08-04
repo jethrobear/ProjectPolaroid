@@ -1,8 +1,6 @@
 package edu.fcpc.polaroid;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -33,42 +31,50 @@ public class WiFiHelper implements Runnable {
 		} catch (IOException ioe) {
 			System.exit(-1);
 		}
-		
+
 		// Try to read something from it
-		for(;;) {
+		for (;;) {
 			try {
 				Socket socket = serverSocket.accept();
 				ObjectInputStream objInStream = new ObjectInputStream(socket.getInputStream());
 				SentPackage sentPackage = (SentPackage) objInStream.readObject();
 				SentPackage returnPackage = new SentPackage();
-			
+
 				// Process the data sent
-				if(sentPackage.packageStatus == PackageStatus.PICTURE) {
+				if (sentPackage.packageStatus == PackageStatus.PICTURE) {
 					// TODO: Add sending salt as well
-					
-					File path = new File("Pictures");
-		            path.mkdirs();
-		            File file = new File(path.getAbsolutePath(), new SimpleDateFormat("MMddyyyy_hhmmss").format(new Date()) + ".jpg");
-		            FileOutputStream fileOutputStream = new FileOutputStream(file);
-		            fileOutputStream.write(sentPackage.imagebinary);
-		            fileOutputStream.flush();
-		            fileOutputStream.close();
-		            
-		            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(sentPackage.imagebinary);
-		            Image image = new Image(byteArrayInputStream);
-		            main.setImage(image);
-				}else if(sentPackage.packageStatus == PackageStatus.LOGIN) {
+
+					try {
+						File path = new File("Pictures");
+						path.mkdirs();
+						File file = new File(path.getAbsolutePath(),
+								new SimpleDateFormat("MMddyyyy_hhmmss").format(new Date()) + ".jpg");
+						FileOutputStream fileOutputStream = new FileOutputStream(file);
+						fileOutputStream.write(sentPackage.imagebinary);
+						fileOutputStream.flush();
+						fileOutputStream.close();
+
+						ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(sentPackage.imagebinary);
+						Image image = new Image(byteArrayInputStream);
+						main.setImage(image);
+						returnPackage.packageStatus = PackageStatus.PICTURE_RESPONSE_OK;
+					} catch (IOException ioe) {
+						returnPackage.packageStatus = PackageStatus.PICTURE_RESPONSE_FAIL;
+						returnPackage.retMessage = ioe.getMessage();
+					}
+
+				} else if (sentPackage.packageStatus == PackageStatus.LOGIN) {
 					// Login the member
 					String username = sentPackage.username;
 					String password = sentPackage.password;
 					boolean hasLogin = SQLHelper.loginUser(username, password);
-					
+
 					// Send the response to the client
-					if(hasLogin)
+					if (hasLogin)
 						returnPackage.packageStatus = PackageStatus.LOGIN_RESPONSE_OK;
 					else
 						returnPackage.packageStatus = PackageStatus.LOGIN_RESPONSE_FAIL;
-				}else if(sentPackage.packageStatus == PackageStatus.REGISTER) {
+				} else if (sentPackage.packageStatus == PackageStatus.REGISTER) {
 					// Register the member
 					String lastname = sentPackage.lastname;
 					String firstname = sentPackage.firstname;
@@ -77,10 +83,9 @@ public class WiFiHelper implements Runnable {
 					int birthyear = Integer.parseInt(sentPackage.birthyear);
 					String username = sentPackage.username;
 					String password = sentPackage.password;
-					String createRetMsg = SQLHelper.createUser(lastname, firstname, 
-							                                   birthmonth, birthday, birthyear,
-							                                   username, password);
-					
+					String createRetMsg = SQLHelper.createUser(lastname, firstname, birthmonth, birthday, birthyear,
+							username, password);
+
 					// Send the response to the client
 					returnPackage.lastname = lastname;
 					returnPackage.firstname = firstname;
@@ -89,22 +94,22 @@ public class WiFiHelper implements Runnable {
 					returnPackage.birthyear = String.valueOf(birthyear);
 					returnPackage.username = username;
 					returnPackage.password = password;
-					if(createRetMsg.equals("PASS"))
+					if (createRetMsg.equals("PASS"))
 						returnPackage.packageStatus = PackageStatus.REGISTER_RESPONSE_OK;
 					else
 						returnPackage.packageStatus = PackageStatus.REGISTER_RESPONSE_FAIL;
 					returnPackage.retMessage = createRetMsg;
 				}
-				
+
 				ObjectOutputStream objOutStream = new ObjectOutputStream(socket.getOutputStream());
 				objOutStream.writeObject(returnPackage);
 				objOutStream.flush();
 				objOutStream.close();
 				socket.close();
-			}catch(IOException ioe) {
+			} catch (IOException ioe) {
 				// Retry
 				continue;
-			}catch(ClassNotFoundException cnfe) {
+			} catch (ClassNotFoundException cnfe) {
 				// INFO: This should not happen
 			}
 		}
