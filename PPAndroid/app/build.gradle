@@ -10,7 +10,13 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
+        debug {
+            buildConfigField "boolean", "NETWORK_BYPASS", "true"
+        }
+
         release {
+            buildConfigField "boolean", "NETWORK_BYPASS", "false"
+
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
