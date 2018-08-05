@@ -101,6 +101,12 @@ public class WiFiHelper implements Runnable {
 					returnPackage.retMessage = createRetMsg;
 				}
 
+				try {
+					Thread.sleep(1000);
+				}catch(InterruptedException ie) {
+					continue;
+				}
+				
 				ObjectOutputStream objOutStream = new ObjectOutputStream(socket.getOutputStream());
 				objOutStream.writeObject(returnPackage);
 				objOutStream.flush();
