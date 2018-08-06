@@ -1,5 +1,6 @@
 package edu.fcpc.polaroid;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -35,8 +36,11 @@ public class WiFiHelper implements Runnable {
 		// Try to read something from it
 		for (;;) {
 			try {
+				// Accept incoming connections
 				Socket socket = serverSocket.accept();
-				ObjectInputStream objInStream = new ObjectInputStream(socket.getInputStream());
+				
+				// Read incoming bytes
+				ObjectInputStream objInStream = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
 				SentPackage sentPackage = (SentPackage) objInStream.readObject();
 				SentPackage returnPackage = new SentPackage();
 
@@ -101,12 +105,6 @@ public class WiFiHelper implements Runnable {
 					returnPackage.retMessage = createRetMsg;
 				}
 
-				try {
-					Thread.sleep(1000);
-				}catch(InterruptedException ie) {
-					continue;
-				}
-				
 				ObjectOutputStream objOutStream = new ObjectOutputStream(socket.getOutputStream());
 				objOutStream.writeObject(returnPackage);
 				objOutStream.flush();

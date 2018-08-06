@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -41,8 +42,10 @@ public abstract class WiFiHelper extends AsyncTask<String, Void, SentPackage> {
             doInBackgroundInner(objOutStream, params);
 
             // Receive message from the server
-            ObjectInputStream objInStream = new ObjectInputStream(socket.getInputStream());
+            ObjectInputStream objInStream = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
             SentPackage receivePackage = (SentPackage) objInStream.readObject();
+            objInStream.close();
+            socket.close();
 
             return receivePackage;
         } catch (SocketCache.NoServerFoundException nsfe) {
@@ -52,6 +55,7 @@ public abstract class WiFiHelper extends AsyncTask<String, Void, SentPackage> {
             errorPackage.retMessage = uhe.getMessage();
         } catch (IOException ioe) {
             // TODO: Add exception message here
+            // Possible broken pipe
         } catch (ClassNotFoundException cnfe) {
             // Do nothing
         }
