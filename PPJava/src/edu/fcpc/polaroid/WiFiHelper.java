@@ -17,106 +17,115 @@ import edu.fcpc.polaroid.packets.SentPackage;
 import javafx.scene.image.Image;
 
 public class WiFiHelper implements Runnable {
-	private Main main;
-	private ServerSocket serverSocket;
+    private Main main;
+    private ServerSocket serverSocket;
 
-	public WiFiHelper(Main main) {
-		this.main = main;
-	}
+    public WiFiHelper(Main main) {
+        this.main = main;
+    }
 
-	@Override
-	public void run() {
-		// Open the server
-		try {
-			serverSocket = new ServerSocket(1234);
-		} catch (IOException ioe) {
-			System.exit(-1);
-		}
+    @Override
+    public void run() {
+        // Open the server
+        try {
+            serverSocket = new ServerSocket(1234);
+        } catch (IOException ioe) {
+            System.exit(-1);
+        }
 
-		// Try to read something from it
-		for (;;) {
-			try {
-				// Accept incoming connections
-				Socket socket = serverSocket.accept();
-				
-				// Read incoming bytes
-				ObjectInputStream objInStream = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
-				SentPackage sentPackage = (SentPackage) objInStream.readObject();
-				SentPackage returnPackage = new SentPackage();
+        // Try to read something from it
+        for (;;) {
+            try {
+                // Accept incoming connections
+                Socket socket = serverSocket.accept();
 
-				// Process the data sent
-				if (sentPackage.packageStatus == PackageStatus.PICTURE) {
-					// TODO: Add sending salt as well
+                // Read incoming bytes
+                ObjectInputStream objInStream = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
+                SentPackage sentPackage = (SentPackage) objInStream.readObject();
+                SentPackage returnPackage = new SentPackage();
 
-					try {
-						File path = new File("Pictures");
-						path.mkdirs();
-						File file = new File(path.getAbsolutePath(),
-								new SimpleDateFormat("MMddyyyy_hhmmss").format(new Date()) + ".jpg");
-						FileOutputStream fileOutputStream = new FileOutputStream(file);
-						fileOutputStream.write(sentPackage.imagebinary);
-						fileOutputStream.flush();
-						fileOutputStream.close();
+                // Process the data sent
+                if (sentPackage.packageStatus == PackageStatus.PICTURE) {
+                    // TODO: Add sending salt as well
 
-						ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(sentPackage.imagebinary);
-						Image image = new Image(byteArrayInputStream);
-						main.setImage(image);
-						returnPackage.packageStatus = PackageStatus.PICTURE_RESPONSE_OK;
-					} catch (IOException ioe) {
-						returnPackage.packageStatus = PackageStatus.PICTURE_RESPONSE_FAIL;
-						returnPackage.retMessage = ioe.getMessage();
-					}
+                    try {
+                        File path = new File("Pictures");
+                        path.mkdirs();
+                        File file = new File(path.getAbsolutePath(),
+                                new SimpleDateFormat("MMddyyyy_hhmmss").format(new Date()) + ".jpg");
+                        FileOutputStream fileOutputStream = new FileOutputStream(file);
+                        fileOutputStream.write(sentPackage.imagebinary);
+                        fileOutputStream.flush();
+                        fileOutputStream.close();
 
-				} else if (sentPackage.packageStatus == PackageStatus.LOGIN) {
-					// Login the member
-					String username = sentPackage.username;
-					String password = sentPackage.password;
-					boolean hasLogin = SQLHelper.loginUser(username, password);
+                        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(sentPackage.imagebinary);
+                        Image image = new Image(byteArrayInputStream);
+                        main.setImage(image);
+                        returnPackage.packageStatus = PackageStatus.PICTURE_RESPONSE_OK;
+                    } catch (IOException ioe) {
+                        returnPackage.packageStatus = PackageStatus.PICTURE_RESPONSE_FAIL;
+                        returnPackage.retMessage = ioe.getMessage();
+                    }
 
-					// Send the response to the client
-					if (hasLogin)
-						returnPackage.packageStatus = PackageStatus.LOGIN_RESPONSE_OK;
-					else
-						returnPackage.packageStatus = PackageStatus.LOGIN_RESPONSE_FAIL;
-				} else if (sentPackage.packageStatus == PackageStatus.REGISTER) {
-					// Register the member
-					String lastname = sentPackage.lastname;
-					String firstname = sentPackage.firstname;
-					int birthmonth = Integer.parseInt(sentPackage.birthmonth);
-					int birthday = Integer.parseInt(sentPackage.birthday);
-					int birthyear = Integer.parseInt(sentPackage.birthyear);
-					String username = sentPackage.username;
-					String password = sentPackage.password;
-					String createRetMsg = SQLHelper.createUser(lastname, firstname, birthmonth, birthday, birthyear,
-							username, password);
+                } else if (sentPackage.packageStatus == PackageStatus.LOGIN) {
+                    // Login the member
+                    String username = sentPackage.username;
+                    String password = sentPackage.password;
+                    boolean hasLogin = SQLHelper.loginUser(username, password);
 
-					// Send the response to the client
-					returnPackage.lastname = lastname;
-					returnPackage.firstname = firstname;
-					returnPackage.birthmonth = String.valueOf(birthmonth);
-					returnPackage.birthday = String.valueOf(birthday);
-					returnPackage.birthyear = String.valueOf(birthyear);
-					returnPackage.username = username;
-					returnPackage.password = password;
-					if (createRetMsg.equals("PASS"))
-						returnPackage.packageStatus = PackageStatus.REGISTER_RESPONSE_OK;
-					else
-						returnPackage.packageStatus = PackageStatus.REGISTER_RESPONSE_FAIL;
-					returnPackage.retMessage = createRetMsg;
-				}
+                    // Send the response to the client
+                    if (hasLogin)
+                        returnPackage.packageStatus = PackageStatus.LOGIN_RESPONSE_OK;
+                    else
+                        returnPackage.packageStatus = PackageStatus.LOGIN_RESPONSE_FAIL;
+                } else if (sentPackage.packageStatus == PackageStatus.REGISTER) {
+                    // Register the member
+                    String lastname = sentPackage.lastname;
+                    String firstname = sentPackage.firstname;
+                    int birthmonth = Integer.parseInt(sentPackage.birthmonth);
+                    int birthday = Integer.parseInt(sentPackage.birthday);
+                    int birthyear = Integer.parseInt(sentPackage.birthyear);
+                    String username = sentPackage.username;
+                    String password = sentPackage.password;
 
-				ObjectOutputStream objOutStream = new ObjectOutputStream(socket.getOutputStream());
-				objOutStream.writeObject(returnPackage);
-				objOutStream.flush();
-				objOutStream.close();
-				socket.close();
-			} catch (IOException ioe) {
-				// Retry
-				continue;
-			} catch (ClassNotFoundException cnfe) {
-				// INFO: This should not happen
-			}
-		}
-	}
+                    // Send the response to the client
+                    returnPackage.lastname = lastname;
+                    returnPackage.firstname = firstname;
+                    returnPackage.birthmonth = String.valueOf(birthmonth);
+                    returnPackage.birthday = String.valueOf(birthday);
+                    returnPackage.birthyear = String.valueOf(birthyear);
+                    returnPackage.username = username;
+                    returnPackage.password = password;
+
+                    // Check if the member is registered
+                    if (SQLHelper.hasUsername(username)) {
+                        returnPackage.packageStatus = PackageStatus.REGISTER_RESPONSE_FAIL;
+                        returnPackage.retMessage = String.format("Username '%s' already been registered", username);
+                    } else {
+                        // Create the user
+                        String createRetMsg = SQLHelper.createUser(lastname, firstname,
+                                                                   birthmonth, birthday, birthyear,
+                                                                   username, password);
+                        if (createRetMsg.equals("PASS"))
+                            returnPackage.packageStatus = PackageStatus.REGISTER_RESPONSE_OK;
+                        else
+                            returnPackage.packageStatus = PackageStatus.REGISTER_RESPONSE_FAIL;
+                        returnPackage.retMessage = createRetMsg;
+                    }
+                }
+
+                ObjectOutputStream objOutStream = new ObjectOutputStream(socket.getOutputStream());
+                objOutStream.writeObject(returnPackage);
+                objOutStream.flush();
+                objOutStream.close();
+                socket.close();
+            } catch (IOException ioe) {
+                // Retry
+                continue;
+            } catch (ClassNotFoundException cnfe) {
+                // INFO: This should not happen
+            }
+        }
+    }
 
 }
