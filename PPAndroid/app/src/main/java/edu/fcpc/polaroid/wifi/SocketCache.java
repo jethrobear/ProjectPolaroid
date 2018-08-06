@@ -5,6 +5,7 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
@@ -16,13 +17,11 @@ public class SocketCache {
 
         // Check if the active host is still open
         try {
-            if(activeHost != null) {
-                activeHostIsReachable = activeHost.isReachable(100);
-                Socket socket = new Socket(activeHost.getHostAddress(), 1234);
-                socket.close();
-                Log.i("PP", String.format("Host %s is reachable", activeHost.getHostAddress()));
-            }
-        } catch (IOException ioe) {
+            Socket socket = new Socket();
+            socket.connect(new InetSocketAddress(activeHost.getHostAddress(), 1234), 100);
+            socket.close();
+            Log.i("PP", String.format("Host %s is reachable", activeHost.getHostAddress()));
+        } catch (IOException | NullPointerException ioe) {
             activeHostIsReachable = false;
             Log.i("PP", "Host had expired, retrying to find hosts");
         }
@@ -38,14 +37,12 @@ public class SocketCache {
                 InetAddress address = InetAddress.getByAddress(ipBytes);
                 Log.i("PP", String.format("Pinging %s", address.getHostAddress()));
                 try {
-                    // Use the address ONLY IF the
-                    if (address.isReachable(10)) {
-                        Socket socket = new Socket(address.getHostAddress(), 1234);
-                        socket.close();
-                        Log.i("PP", String.format("Address %s has reachable port 1234, saving this to cache", address.getHostAddress()));
-                        activeHost = address;
-                        return activeHost;
-                    }
+                    Socket socket = new Socket();
+                    socket.connect(new InetSocketAddress(address.getHostAddress(), 1234), 100);
+                    socket.close();
+                    Log.i("PP", String.format("Address %s has reachable port 1234, saving this to cache", address.getHostAddress()));
+                    activeHost = address;
+                    return activeHost;
                 } catch (IOException ioe) {
                     // Move to the next host
                     Log.i("PP", String.format("Address %s has no reachable port 1234, polling more", address.getHostAddress()));
