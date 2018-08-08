@@ -12,6 +12,9 @@ import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import javax.jmdns.JmDNS;
+import javax.jmdns.ServiceInfo;
+
 import edu.fcpc.polaroid.packets.PackageStatus;
 import edu.fcpc.polaroid.packets.SentPackage;
 import javafx.scene.image.Image;
@@ -26,9 +29,14 @@ public class WiFiHelper implements Runnable {
 
     @Override
     public void run() {
-        // Open the server
         try {
-            serverSocket = new ServerSocket(1234);
+            // Register the service on mDNS
+            JmDNS jmdns = JmDNS.create();
+            ServiceInfo serviceInfo = ServiceInfo.create("_http._tcp.local.", "example", 1234, "path=index.html");
+            jmdns.registerService(serviceInfo);
+
+            // Open the server
+            serverSocket = new ServerSocket(serviceInfo.getPort());
         } catch (IOException ioe) {
             System.exit(-1);
         }
