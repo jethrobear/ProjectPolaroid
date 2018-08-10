@@ -7,14 +7,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import javax.jmdns.JmDNS;
-import javax.jmdns.ServiceInfo;
 
 import edu.fcpc.polaroid.packets.PackageStatus;
 import edu.fcpc.polaroid.packets.SentPackage;
@@ -31,13 +27,8 @@ public class WiFiHelper implements Runnable {
     @Override
     public void run() {
         try {
-            // Register the service on mDNS
-            JmDNS jmdns = JmDNS.create();
-            ServiceInfo serviceInfo = ServiceInfo.create("_http._tcp.local", "example", 1234, "path=index.html");
-            jmdns.registerService(serviceInfo);
-
             // Open the server
-            serverSocket = new ServerSocket(serviceInfo.getPort());
+            serverSocket = new ServerSocket(main.serviceInfo.getPort());
         } catch (IOException ioe) {
             System.exit(-1);
         }
