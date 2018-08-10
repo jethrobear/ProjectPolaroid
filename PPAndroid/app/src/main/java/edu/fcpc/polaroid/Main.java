@@ -4,26 +4,81 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.net.nsd.NsdManager;
+import android.net.nsd.NsdServiceInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.util.Log;
 
-import java.io.IOException;
 import java.net.InetAddress;
 
-import javax.jmdns.JmDNS;
-import javax.jmdns.ServiceEvent;
-import javax.jmdns.ServiceListener;
-
-public class Main extends Activity implements ServiceListener {
-    private WifiManager.MulticastLock multicastLock;
-    private JmDNS jmDNS;
-    public InetAddress[] runningAddresses = null;
+public class Main extends Activity {
+    private NsdManager.ResolveListener mResolveListener;
+    private NsdManager.DiscoveryListener mDiscoveryListener;
+    private NsdManager mNsdManager;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         // Setup mDNS
-        callMulticast();
+        mNsdManager = (NsdManager) getSystemService(Context.NSD_SERVICE);
+        mResolveListener = new NsdManager.ResolveListener() {
+
+            @Override
+            public void onResolveFailed(NsdServiceInfo serviceInfo, int errorCode) {
+                Log.e("ZZ", "onResolveFailed Resolve failed" + errorCode);
+            }
+
+            @Override
+            public void onServiceResolved(NsdServiceInfo serviceInfo) {
+                Log.v("ZZ", "onServiceResolved Resolve Succeeded. " + serviceInfo);
+                int port = serviceInfo.getPort();
+                InetAddress host = serviceInfo.getHost();
+
+                Log.i("ZZ", String.format("%s:%d", host.getHostAddress(), port));
+            }
+        };
+        mDiscoveryListener = new NsdManager.DiscoveryListener() {
+
+            @Override
+            public void onDiscoveryStarted(String regType) {
+                Log.v("ZZ", "onDiscoveryStarted Service discovery started");
+            }
+
+            @Override
+            public void onServiceFound(NsdServiceInfo service) {
+                if (!service.getServiceType().equals("_http._tcp.")) {
+                    Log.v("ZZ", "onServiceFound Unknown Service Type: " + service.getServiceType());
+                } else {
+                    Log.v("ZZ", "onServiceFound Known Service Type: " + service.getServiceType());
+                    mNsdManager.resolveService(service, mResolveListener);
+                }
+            }
+
+            @Override
+            public void onServiceLost(NsdServiceInfo service) {
+                Log.e("ZZ", "service lost" + service);
+            }
+
+            @Override
+            public void onDiscoveryStopped(String serviceType) {
+                Log.i("ZZ", "Discovery stopped: " + serviceType);
+            }
+
+            @Override
+            public void onStartDiscoveryFailed(String serviceType, int errorCode) {
+                Log.e("ZZ", "Discovery failed: Error code:" + errorCode);
+                mNsdManager.stopServiceDiscovery(this);
+            }
+
+            @Override
+            public void onStopDiscoveryFailed(String serviceType, int errorCode) {
+                Log.e("ZZ", "Discovery failed: Error code:" + errorCode);
+                mNsdManager.stopServiceDiscovery(this);
+            }
+        };
+        mNsdManager.discoverServices("_http._tcp.", NsdManager.PROTOCOL_DNS_SD, mDiscoveryListener);
+
 
         // Setup UI
         setContentView(R.layout.main_frame);
@@ -35,28 +90,6 @@ public class Main extends Activity implements ServiceListener {
             Fragment10 fragment10 = new Fragment10();
             fragment10.setArguments(getIntent().getExtras());
             getFragmentManager().beginTransaction().add(R.id.main_frame, fragment10).commit();
-        }
-    }
-
-    private void callMulticast(){
-        try {
-            WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-            multicastLock = wifiManager.createMulticastLock("PPMulticastLock");
-            multicastLock.setReferenceCounted(true);
-            multicastLock.acquire();
-            jmDNS = JmDNS.create();
-            jmDNS.addServiceListener("_http._tcp.local.", Main.this);
-        } catch (IOException ioe) {
-            closeMulticast();
-        }
-    }
-
-    private void closeMulticast(){
-        try {
-            jmDNS.removeServiceListener("_http._tcp.local.", Main.this);
-            jmDNS.close();
-        } catch (IOException ioe2) {
-            // Do nothing
         }
     }
 
@@ -72,7 +105,6 @@ public class Main extends Activity implements ServiceListener {
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            closeMulticast();
                             finish();
                         }
                     })
@@ -84,39 +116,5 @@ public class Main extends Activity implements ServiceListener {
                     })
                     .create().show();
         }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        closeMulticast();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        callMulticast();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        closeMulticast();
-    }
-
-    @Override
-    public void serviceAdded(ServiceEvent event) {
-
-    }
-
-    @Override
-    public void serviceRemoved(ServiceEvent event) {
-
-    }
-
-    @Override
-    public void serviceResolved(ServiceEvent event) {
-        // TODO: Create stuff
-        runningAddresses = event.getInfo().getInetAddresses();
     }
 }

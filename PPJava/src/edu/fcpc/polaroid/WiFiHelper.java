@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
@@ -32,7 +33,7 @@ public class WiFiHelper implements Runnable {
         try {
             // Register the service on mDNS
             JmDNS jmdns = JmDNS.create();
-            ServiceInfo serviceInfo = ServiceInfo.create("_http._tcp.local.", "example", 1234, "path=index.html");
+            ServiceInfo serviceInfo = ServiceInfo.create("_http._tcp.local", "example", 1234, "path=index.html");
             jmdns.registerService(serviceInfo);
 
             // Open the server
