@@ -3,9 +3,7 @@ package edu.fcpc.polaroid.wifi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 
 import java.io.BufferedInputStream;
@@ -34,8 +32,7 @@ public abstract class WiFiHelper extends AsyncTask<String, Void, SentPackage> {
         SentPackage errorPackage = new SentPackage();
 
         try {
-            WifiManager mWifiManager = (WifiManager) main.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-            Socket socket = new Socket(SocketCache.getActiveHost(mWifiManager).getHostAddress(), 1234);
+            Socket socket = new Socket(SocketCache.workingAddress, SocketCache.workingPort);
             ObjectOutputStream objOutStream = new ObjectOutputStream(socket.getOutputStream());
 
             // Send the packet to the server
@@ -48,11 +45,11 @@ public abstract class WiFiHelper extends AsyncTask<String, Void, SentPackage> {
             socket.close();
 
             return receivePackage;
-        } catch (SocketCache.NoServerFoundException nsfe) {
-            errorPackage.packageStatus = PackageStatus.NO_SERVER_FOUND;
         } catch (UnknownHostException uhe) {
             errorPackage.packageStatus = PackageStatus.HOSTNAME_NOT_FOUND;
             errorPackage.retMessage = uhe.getMessage();
+        } catch (NullPointerException npe) {
+            errorPackage.packageStatus = PackageStatus.NO_SERVER_FOUND;
         } catch (IOException ioe) {
             // TODO: Add exception message here
             // Possible broken pipe
