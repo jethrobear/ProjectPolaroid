@@ -26,9 +26,9 @@ public class WiFiHelper implements Runnable {
 
     @Override
     public void run() {
-        // Open the server
         try {
-            serverSocket = new ServerSocket(1234);
+            // Open the server
+            serverSocket = new ServerSocket(main.serviceInfo.getPort());
         } catch (IOException ioe) {
             System.exit(-1);
         }

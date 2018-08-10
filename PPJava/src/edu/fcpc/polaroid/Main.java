@@ -2,6 +2,9 @@ package edu.fcpc.polaroid;
 
 import java.io.IOException;
 
+import javax.jmdns.JmDNS;
+import javax.jmdns.ServiceInfo;
+
 import edu.fcpc.polaroid.windows.NewUserWindow;
 import javafx.application.Application;
 import javafx.event.EventHandler;
@@ -22,12 +25,22 @@ public class Main extends Application {
 	private GraphicsContext graphicsContext;
 	private Screen screen;
 	private Image[] image = {null, null, null};
+	public ServiceInfo serviceInfo;
 
 	public static void main(String[] args) throws IOException {
 	    launch(args);	
 	}
 	
 	public void start(Stage primaryStage){
+		// Register the service on mDNS
+		try {
+	        JmDNS jmdns = JmDNS.create();
+	        serviceInfo = ServiceInfo.create("_http._tcp.local", "example", 1234, "path=index.html");
+	        jmdns.registerService(serviceInfo);
+		}catch(IOException ioe) {
+			// TODO: Should warning the user
+		}
+		
 		SQLHelper.prepareConnection();
 		
 		screen = Screen.getPrimary();

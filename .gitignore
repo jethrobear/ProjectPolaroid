@@ -114,4 +114,6 @@ PPAndroid/local.properties
 *.txt
 *.db
 *.class
+*.apk
+*.json
 PPJava/Pictures/*
