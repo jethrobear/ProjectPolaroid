@@ -2,11 +2,6 @@ package edu.fcpc.polaroid;
 
 import java.io.IOException;
 
-import javax.jmdns.JmDNS;
-import javax.jmdns.ServiceEvent;
-import javax.jmdns.ServiceInfo;
-import javax.jmdns.ServiceListener;
-
 import edu.fcpc.polaroid.windows.NewUserWindow;
 import javafx.application.Application;
 import javafx.event.EventHandler;
@@ -27,40 +22,13 @@ public class Main extends Application {
 	private GraphicsContext graphicsContext;
 	private Screen screen;
 	private Image[] image = {null, null, null};
-	public ServiceInfo serviceInfo;
 
 	public static void main(String[] args) throws IOException {
 	    launch(args);	
 	}
 	
 	public void start(Stage primaryStage){
-		// Register the service on mDNS
-		try {
-	        JmDNS jmdns = JmDNS.create();
-	        serviceInfo = ServiceInfo.create("_http._tcp.local", "example", 1234, "path=index.html");
-	        jmdns.registerService(serviceInfo);
-	        jmdns.addServiceListener("_http._tcp.local", new ServiceListener() {
-				
-				@Override
-				public void serviceResolved(ServiceEvent arg0) {
-					System.out.println(arg0.getInfo());
-				}
-				
-				@Override
-				public void serviceRemoved(ServiceEvent arg0) {
-					System.out.println(arg0.getInfo());
-				}
-				
-				@Override
-				public void serviceAdded(ServiceEvent arg0) {
-					System.out.println(arg0.getInfo());
-				}
-			});
-	        
-		}catch(IOException ioe) {
-			// TODO
-		}
-		
+		// Prepare the SQL
 		SQLHelper.prepareConnection();
 		
 		screen = Screen.getPrimary();
