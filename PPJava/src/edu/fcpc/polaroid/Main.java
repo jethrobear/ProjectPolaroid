@@ -3,7 +3,9 @@ package edu.fcpc.polaroid;
 import java.io.IOException;
 
 import javax.jmdns.JmDNS;
+import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
+import javax.jmdns.ServiceListener;
 
 import edu.fcpc.polaroid.windows.NewUserWindow;
 import javafx.application.Application;
@@ -37,8 +39,26 @@ public class Main extends Application {
 	        JmDNS jmdns = JmDNS.create();
 	        serviceInfo = ServiceInfo.create("_http._tcp.local", "example", 1234, "path=index.html");
 	        jmdns.registerService(serviceInfo);
+	        jmdns.addServiceListener("_http._tcp.local", new ServiceListener() {
+				
+				@Override
+				public void serviceResolved(ServiceEvent arg0) {
+					System.out.println(arg0.getInfo());
+				}
+				
+				@Override
+				public void serviceRemoved(ServiceEvent arg0) {
+					System.out.println(arg0.getInfo());
+				}
+				
+				@Override
+				public void serviceAdded(ServiceEvent arg0) {
+					System.out.println(arg0.getInfo());
+				}
+			});
+	        
 		}catch(IOException ioe) {
-			// TODO: Should warning the user
+			// TODO
 		}
 		
 		SQLHelper.prepareConnection();
@@ -73,7 +93,7 @@ public class Main extends Application {
 		});
 		
 		primaryStage.setScene(scene);
-		primaryStage.show();
+		//primaryStage.show();
 		
 		clearScreen();
 		
@@ -127,23 +147,11 @@ public class Main extends Application {
 	}
 	
 	public void setImage(Image image){
-//		writeMessage("Resizing... ");
-//		ImageView tempImage = new ImageView(image);
-//		tempImage.setPreserveRatio(true);
-//		tempImage.setFitHeight(260);
-//		Image shrinkImage = tempImage.snapshot(null, null);
-//		writeMessage("Cropping... ");
-//		Rectangle2D croppingViewport = new Rectangle2D((shrinkImage.getWidth()-280)/2, 0, 280, 280);
-//		tempImage = new ImageView(shrinkImage);
-//		tempImage.setViewport(croppingViewport);
-//		Image cropImage = tempImage.snapshot(null, null);
-		
 		writeMessage("Setting arrays... ");
 		this.image[2] = this.image[1];
 		this.image[1] = this.image[0];
 		this.image[0] = image;
-		
-		//this.image = image;
+
 		clearScreen();
 	}
 }
