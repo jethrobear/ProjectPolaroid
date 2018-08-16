@@ -81,6 +81,9 @@ public class WiFiHelper implements Runnable {
         try {
             // Open the server
             serverSocketAndroid = new ServerSocket(serviceInfoAndroid.getPort());
+            logger.info(String.format("Initialised server connection as %s:%d", 
+            		                  serverSocketAndroid.getInetAddress().getHostAddress(),
+            		                  serverSocketAndroid.getLocalPort()));
         } catch(BindException be) {
         	// Possible that the server is already been opened, so try to setup client instead
         	logger.warn(be.getMessage());
@@ -94,13 +97,16 @@ public class WiFiHelper implements Runnable {
         for (;;) {
             try {
                 // Accept incoming connections
+            	Socket socket = null;
+            	SentPackage sentPackage = null;
+            	SentPackage returnPackage = new SentPackage();
             	try {
-            		Socket socket = serverSocketAndroid.accept();
+            		socket = serverSocketAndroid.accept();
             		
             		// Read incoming bytes (Originating from Android)
                     ObjectInputStream objInStream = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
-                    SentPackage sentPackage = (SentPackage) objInStream.readObject();
-                    SentPackage returnPackage = new SentPackage();
+                    sentPackage = (SentPackage) objInStream.readObject();
+                    returnPackage = new SentPackage();
             		
                     // Send back to the clients
                     for(MeshNodeInfo info : meshNetwork) {
@@ -112,7 +118,8 @@ public class WiFiHelper implements Runnable {
                     	clientSocket.close();
                     }
             	}catch(NullPointerException npe) {
-            		Socket socketJava = new Socket();
+            		logger.error("Still doing client run");
+            		System.exit(-1);
             	}
             
         		
