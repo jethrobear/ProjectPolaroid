@@ -1,21 +1,20 @@
 package edu.fcpc.polaroid;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SQLHelper {
 	public static void prepareConnection(){
+		Logger logger = LoggerFactory.getLogger(SQLHelper.class);
 		try{
-			writeDump("Starting to prepare SQL connection");
+			logger.info("Starting to prepare SQL connection");
 			Class.forName("org.sqlite.JDBC");
 			Connection connection = DriverManager.getConnection("jdbc:sqlite:app_DigitalFrame.db");
 			connection.setAutoCommit(false);
@@ -26,15 +25,17 @@ public class SQLHelper {
 			statement.close();
 			connection.commit();
 			connection.close();
-			writeDump("Closing to prepare SQL connection");
+			logger.info("Closing to prepare SQL connection");
 		}catch(ClassNotFoundException | SQLException sqle){
+			logger.warn(sqle.getMessage());
 			sqle.printStackTrace();
 		}
 	}
 	
 	public static boolean hasUsername(String username){
+		Logger logger = LoggerFactory.getLogger(SQLHelper.class);
 		try{
-			writeDump("Checking username instance");
+			logger.info("Checking username instance");
 			Class.forName("org.sqlite.JDBC");
 			boolean hasRecord = false;
 			
@@ -56,21 +57,22 @@ public class SQLHelper {
 			connection.commit();
 			connection.close();
 
-			writeDump("Done checking username instance");
+			logger.info("Done checking username instance");
 			return hasRecord;
 		}catch(ClassNotFoundException | SQLException sqle){
-			writeDump("!!!!" + sqle.getMessage());
+			logger.warn(sqle.getMessage());
 			return false;
 		}
 	}
 	
 	public static String createUser(String lastname, String firstname, int bdaym, int bdayd, int bdayy, String username, String password){
+		Logger logger = LoggerFactory.getLogger(SQLHelper.class);
 		try{
-			writeDump("Creating a user");
+			logger.info("Creating a user");
 			Class.forName("org.sqlite.JDBC");
 			Connection connection = DriverManager.getConnection("jdbc:sqlite:app_DigitalFrame.db");
 			connection.setAutoCommit(false);
-			writeDump("|-> Connection open " + connection.toString());
+			logger.info("|-> Connection open " + connection.toString());
 			//Statement statement = connection.createStatement();
 			PreparedStatement statement = connection.prepareStatement("INSERT INTO APP_CREDENTIALS2(lastname, firstname, bdaym, bdayd, bdayy, username, password) VALUES (?,?,?,?,?,?,?);");
 			statement.setString(1, lastname);
@@ -80,25 +82,27 @@ public class SQLHelper {
 			statement.setInt(5, bdayy);
 			statement.setString(6, username);
 			statement.setString(7, password);
-			writeDump("|-> Statement open " + statement.toString());
+			logger.info("|-> Statement open " + statement.toString());
 			int returnValue = statement.executeUpdate();
 			connection.commit();
-			writeDump("|-> Statement open " + String.valueOf(returnValue));
+			logger.info("|-> Statement open " + String.valueOf(returnValue));
 			statement.close();
-			writeDump("|-> Statement close");
+			logger.info("|-> Statement close");
 			connection.commit();
 			connection.close();
-			writeDump("|-> Connection close");
-			writeDump("Done creating user");
+			logger.info("|-> Connection close");
+			logger.info("Done creating user");
 			return "PASS";
 		}catch(ClassNotFoundException | SQLException sqle){
+			logger.warn(sqle.getMessage());
 			return sqle.getMessage();
 		}
 	}
 	
 	public static boolean loginUser(String username, String password){
+		Logger logger = LoggerFactory.getLogger(SQLHelper.class);
 		try{
-			writeDump("Logging in the user");
+			logger.info("Logging in the user");
 			Class.forName("org.sqlite.JDBC");
 			boolean hasRecord = false;
 			
@@ -122,24 +126,11 @@ public class SQLHelper {
 			connection.commit();
 			connection.close();
 
-			writeDump("Done logging in");
+			logger.info("Done logging in");
 			return hasRecord;
 		}catch(ClassNotFoundException | SQLException sqle){
+			logger.warn(sqle.getMessage());
 			return false;
-		}
-	}
-	
-	public static void writeDump(String message){
-		try{
-			FileWriter fileWriter = new FileWriter("sqlDump.txt", true);
-			BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-			bufferedWriter.append("[");
-			bufferedWriter.append(new SimpleDateFormat("MMddyyyy HHmmss").format(Calendar.getInstance().getTime()));
-			bufferedWriter.append("] "+ message + "\n");
-			bufferedWriter.close();
-			fileWriter.close();
-		}catch(IOException e){
-		
 		}
 	}
 }

@@ -2,9 +2,6 @@ package edu.fcpc.polaroid;
 
 import java.io.IOException;
 
-import javax.jmdns.JmDNS;
-import javax.jmdns.ServiceInfo;
-
 import edu.fcpc.polaroid.windows.NewUserWindow;
 import javafx.application.Application;
 import javafx.event.EventHandler;
@@ -25,22 +22,13 @@ public class Main extends Application {
 	private GraphicsContext graphicsContext;
 	private Screen screen;
 	private Image[] image = {null, null, null};
-	public ServiceInfo serviceInfo;
 
 	public static void main(String[] args) throws IOException {
 	    launch(args);	
 	}
 	
 	public void start(Stage primaryStage){
-		// Register the service on mDNS
-		try {
-	        JmDNS jmdns = JmDNS.create();
-	        serviceInfo = ServiceInfo.create("_http._tcp.local", "example", 1234, "path=index.html");
-	        jmdns.registerService(serviceInfo);
-		}catch(IOException ioe) {
-			// TODO: Should warning the user
-		}
-		
+		// Prepare the SQL
 		SQLHelper.prepareConnection();
 		
 		screen = Screen.getPrimary();
@@ -73,7 +61,7 @@ public class Main extends Application {
 		});
 		
 		primaryStage.setScene(scene);
-		primaryStage.show();
+		//primaryStage.show();
 		
 		clearScreen();
 		
@@ -127,23 +115,11 @@ public class Main extends Application {
 	}
 	
 	public void setImage(Image image){
-//		writeMessage("Resizing... ");
-//		ImageView tempImage = new ImageView(image);
-//		tempImage.setPreserveRatio(true);
-//		tempImage.setFitHeight(260);
-//		Image shrinkImage = tempImage.snapshot(null, null);
-//		writeMessage("Cropping... ");
-//		Rectangle2D croppingViewport = new Rectangle2D((shrinkImage.getWidth()-280)/2, 0, 280, 280);
-//		tempImage = new ImageView(shrinkImage);
-//		tempImage.setViewport(croppingViewport);
-//		Image cropImage = tempImage.snapshot(null, null);
-		
 		writeMessage("Setting arrays... ");
 		this.image[2] = this.image[1];
 		this.image[1] = this.image[0];
 		this.image[0] = image;
-		
-		//this.image = image;
+
 		clearScreen();
 	}
 }
