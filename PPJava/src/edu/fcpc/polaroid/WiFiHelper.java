@@ -11,6 +11,7 @@ import java.net.BindException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ public class WiFiHelper implements Runnable {
     private Logger logger;
 	private ServiceInfo serviceInfoAndroid, serviceInfoJava;
 	private ArrayList<MeshNodeInfo> meshNetwork = new ArrayList<MeshNodeInfo>();
+	private JmDNS jmdns;
 	
     public WiFiHelper(Main main) {
         this.main = main;
@@ -42,7 +44,7 @@ public class WiFiHelper implements Runnable {
         
         // Register the service on mDNS
  		try {
- 	        JmDNS jmdns = JmDNS.create();
+ 	        jmdns = JmDNS.create();
  	        serviceInfoAndroid = ServiceInfo.create("_http._tcp.local", "example", 1234, "path=index.html");
  	        jmdns.registerService(serviceInfoAndroid);
  	        serverSocketJava = new ServerSocket(0);
@@ -118,8 +120,23 @@ public class WiFiHelper implements Runnable {
                     	clientSocket.close();
                     }
             	}catch(NullPointerException npe) {
-            		logger.error("Still doing client run");
-            		System.exit(-1);
+            		logger.warn("Assuming client run");
+            		for(ServiceInfo info : jmdns.list("_workspace._tcp.local")) {
+            			try {
+            				MeshNodeInfo meshInfo = new MeshNodeInfo(info);
+            				if(meshInfo.inetAddress != null)
+            					socket = new Socket(meshInfo.inetAddress, meshInfo.port);
+            				else
+            					continue;
+            				socket.setSoTimeout(1000);
+            				ObjectInputStream objInStream = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
+                            sentPackage = (SentPackage) objInStream.readObject();
+                            returnPackage = new SentPackage();
+            			}catch(IOException e) {
+            				// Not a server connection
+            				continue;
+            			}
+            		}
             	}
             
         		
@@ -229,6 +246,20 @@ public class WiFiHelper implements Runnable {
     			
     			// Assign port
     			port = event.getInfo().getPort();
+    		}
+    	}
+    	
+    	public MeshNodeInfo(ServiceInfo info) {
+    		if(info.getHostAddresses().length > 0) {
+    			// Assign the InetAddress based on the host address
+    			try {
+    				inetAddress = InetAddress.getByName(info.getHostAddresses()[0]);
+    			}catch(UnknownHostException uhe) {
+    				inetAddress = null;
+    			}
+    			
+    			// Assign port
+    			port = info.getPort();
     		}
     	}
     }
