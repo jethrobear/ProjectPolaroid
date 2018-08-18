@@ -44,7 +44,7 @@ public class Main extends Activity implements NsdManager.DiscoveryListener {
 
     @Override
     public void onServiceFound(NsdServiceInfo service) {
-        if (!service.getServiceType().equals("_http._tcp.")) {
+        if (!service.getServiceType().equals("_http._tcp.") || !service.getServiceName().equals("example")) {
             Log.v("ZZ", "onServiceFound Unknown Service Type: " + service.getServiceType());
         } else {
             Log.v("ZZ", "onServiceFound Known Service Type: " + service.getServiceType());
