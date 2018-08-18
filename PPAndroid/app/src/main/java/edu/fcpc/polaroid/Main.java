@@ -6,11 +6,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.util.Log;
-
-import java.net.InetAddress;
 
 import edu.fcpc.polaroid.wifi.SocketCache;
 
@@ -22,7 +19,21 @@ public class Main extends Activity implements NsdManager.DiscoveryListener {
 
         // Setup mDNS
         mNsdManager = (NsdManager) getSystemService(Context.NSD_SERVICE);
-        mNsdManager.discoverServices("_http._tcp.", NsdManager.PROTOCOL_DNS_SD, this);
+        try {
+            mNsdManager.discoverServices("_http._tcp.", NsdManager.PROTOCOL_DNS_SD, this);
+        }catch(NullPointerException npe){
+            new AlertDialog.Builder(this)
+                    .setTitle(getString(R.string.app_name))
+                    .setCancelable(false)
+                    .setMessage("No server found")
+                    .setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            Main.this.finish();
+                        }
+                    });
+        }
 
         // Setup UI
         setContentView(R.layout.main_frame);
@@ -57,11 +68,9 @@ public class Main extends Activity implements NsdManager.DiscoveryListener {
                 @Override
                 public void onServiceResolved(NsdServiceInfo serviceInfo) {
                     Log.v("ZZ", "onServiceResolved Resolve Succeeded. " + serviceInfo);
-                    int port = serviceInfo.getPort();
-                    InetAddress host = serviceInfo.getHost();
 
-                    SocketCache.workingAddress = host;
-                    SocketCache.workingPort = port;
+                    SocketCache.workingAddress = serviceInfo.getHost();
+                    SocketCache.workingPort = serviceInfo.getPort();
                     Log.i("ZZ", String.format("%s:%d", SocketCache.workingAddress.getHostAddress(), SocketCache.workingPort));
                 }
             });
