@@ -1,7 +1,9 @@
 package edu.fcpc.polaroid;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -19,12 +21,8 @@ import java.util.UUID;
 import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceInfo;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import edu.fcpc.polaroid.packets.PackageStatus;
 import edu.fcpc.polaroid.packets.SentPackage;
-import javafx.scene.image.Image;
 
 public class WiFiHelper implements Runnable {
     private Main main;
@@ -144,10 +142,8 @@ public class WiFiHelper implements Runnable {
 	                        fileOutputStream.write(sentPackage.imagebinary);
 	                        fileOutputStream.flush();
 	                        fileOutputStream.close();
-	
-	                        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(sentPackage.imagebinary);
-	                        Image image = new Image(byteArrayInputStream);
-	                        main.setImage(image);
+
+	                        main.setImage(sentPackage.imagebinary);
 	                        returnPackage.packageStatus = PackageStatus.PICTURE_RESPONSE_OK;
 	                    } catch (IOException ioe) {
 	                    	logger.warn(ioe.getMessage());
