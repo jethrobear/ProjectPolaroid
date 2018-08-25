@@ -8,7 +8,7 @@ import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -20,8 +20,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.common.io.Files;
+
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -59,6 +60,13 @@ public class Fragment30 extends Fragment {
         });
 
         return rootView;
+    }
+
+    @Override
+    public void startActivityForResult(Intent intent, int requestCode) {
+        File file = new File(Environment.getExternalStorageDirectory() + File.separator + "temp.jpg");
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
+        super.startActivityForResult(intent, requestCode);
     }
 
     @Override
@@ -152,13 +160,10 @@ public class Fragment30 extends Fragment {
                 String destPath = Environment.getExternalStorageDirectory().getPath() + File.separatorChar + "IMG_" +
                         new SimpleDateFormat("ddMMyyyy").format(new Date()) + ".jpg";
                 try {
-                    Bitmap bitmap = (Bitmap) data.getExtras().get("data");
-                    File file = new File(destPath);
-                    FileOutputStream fileOutStream = new FileOutputStream(file);
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutStream);
-                    fileOutStream.flush();
-                    fileOutStream.close();
-                    MediaStore.Images.Media.insertImage(Fragment30.this.getActivity().getContentResolver(), file.getAbsolutePath(), file.getName(), file.getName());
+                    File file = new File(Environment.getExternalStorageDirectory() + File.separator + "temp.jpg");
+                    File nfile = new File(destPath);
+                    Files.copy(file, nfile);
+                    MediaStore.Images.Media.insertImage(Fragment30.this.getActivity().getContentResolver(), nfile.getAbsolutePath(), nfile.getName(), nfile.getName());
                 } catch (IOException ioe) {
 
                 }

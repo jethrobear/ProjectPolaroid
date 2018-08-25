@@ -4,9 +4,11 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
+import android.os.Environment;
 
-import java.io.ByteArrayOutputStream;
+import com.google.common.io.Files;
+
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 
@@ -30,14 +32,10 @@ public class WiFiSendingHelper extends WiFiHelper {
 
     @Override
     public Integer doInBackgroundInner(ObjectOutputStream objOutStream, String... params) throws IOException {
-        Bitmap bitmap = (Bitmap) data.getExtras().get("data");
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
-        outputStream.flush();
-        outputStream.close();
+        File file = new File(Environment.getExternalStorageDirectory() + File.separator + "temp.jpg");
         SentPackage sentPackage = new SentPackage();
         sentPackage.packageStatus = PackageStatus.PICTURE;
-        sentPackage.imagebinary = outputStream.toByteArray();
+        sentPackage.imagebinary = Files.toByteArray(file);
         sentPackage.filename = "A"; // TODO: Determine if this is needed
 
         objOutStream.writeObject(sentPackage);

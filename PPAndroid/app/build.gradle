@@ -38,6 +38,7 @@ dependencies {
     })
     compile 'com.android.support.constraint:constraint-layout:1.1.2'
     compile 'com.android.support:appcompat-v7:24.2.1'
+    compile 'com.google.guava:guava:23.0'
     compile project(':PPCore')
     testCompile 'junit:junit:4.12'
 }
