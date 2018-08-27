@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.os.AsyncTask;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -33,7 +34,7 @@ public abstract class WiFiHelper extends AsyncTask<String, Void, SentPackage> {
 
         try {
             Socket socket = new Socket(SocketCache.workingAddress, SocketCache.workingPort);
-            ObjectOutputStream objOutStream = new ObjectOutputStream(socket.getOutputStream());
+            ObjectOutputStream objOutStream = new ObjectOutputStream(new BufferedOutputStream(socket.getOutputStream()));
 
             // Send the packet to the server
             doInBackgroundInner(objOutStream, params);
