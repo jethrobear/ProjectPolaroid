@@ -59,6 +59,7 @@ public class WiFiHelper implements Runnable {
             logger.info(String.format("Initialised server connection as %s:%d", 
             		                  serverSocketAndroid.getInetAddress().getHostAddress(),
             		                  serverSocketAndroid.getLocalPort()));
+            main.removeStatus();
         } catch(BindException be) {
         	// Possible that the server is already been opened, so try to setup client instead
         	logger.warn(be.getMessage());
@@ -221,7 +222,7 @@ public class WiFiHelper implements Runnable {
     class MeshNodeInfo{
     	public InetAddress inetAddress;
     	public int port;
-    	
+
     	public MeshNodeInfo(ServiceInfo info) {
     		if(info.getHostAddresses().length > 0) {
     			// Assign the InetAddress based on the host address
