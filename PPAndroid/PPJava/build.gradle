@@ -2,7 +2,8 @@ apply plugin: 'java'
 apply plugin: 'application'
 archivesBaseName = 'DigitalFrame'
 sourceCompatibility = 1.8
-version = '1.0-SNAPSHOT' 
+version = '1.0-SNAPSHOT'
+mainClassName = 'edu.fcpc.polaroid.Main'
 
 sourceSets{
    main{

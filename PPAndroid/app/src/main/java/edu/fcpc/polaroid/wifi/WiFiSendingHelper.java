@@ -12,15 +12,15 @@ import java.io.File;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 
+import edu.fcpc.polaroid.Fragment21;
+import edu.fcpc.polaroid.Fragment30;
 import edu.fcpc.polaroid.packets.PackageStatus;
 import edu.fcpc.polaroid.packets.SentPackage;
 
 public class WiFiSendingHelper extends WiFiHelper {
-    private Intent data;
 
-    public WiFiSendingHelper(Activity main, Intent data){
+    public WiFiSendingHelper(Activity main){
         super(main);
-        this.data = data;
     }
 
     @Override
@@ -32,7 +32,7 @@ public class WiFiSendingHelper extends WiFiHelper {
 
     @Override
     public Integer doInBackgroundInner(ObjectOutputStream objOutStream, String... params) throws IOException {
-        File file = new File(Environment.getExternalStorageDirectory() + File.separator + "temp.jpg");
+        File file = new File(Fragment30.imgFile.getAbsolutePath());
         SentPackage sentPackage = new SentPackage();
         sentPackage.packageStatus = PackageStatus.PICTURE;
         sentPackage.imagebinary = Files.toByteArray(file);
