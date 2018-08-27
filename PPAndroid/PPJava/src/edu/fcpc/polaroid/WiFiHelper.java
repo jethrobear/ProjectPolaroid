@@ -81,25 +81,29 @@ public class WiFiHelper implements Runnable {
             		socket = serverSocketAndroid.accept();
             		
             		// Read incoming bytes (Originating from Android)
-                    ObjectInputStream objInStream = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
-                    sentPackage = (SentPackage) objInStream.readObject();
-                    returnPackage = new SentPackage();
+                    try {
+                        ObjectInputStream objInStream = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
+                        sentPackage = (SentPackage) objInStream.readObject();
+                        returnPackage = new SentPackage();
+                    }catch(Exception e){
+                        logger.warn(e.getMessage());
+                    }
             		
                     // Send back to the clients
-                    for(ServiceInfo info : jmdns.list("_workspace._tcp.local.")) {
-                    	try {
-	                    	MeshNodeInfo meshInfo = new MeshNodeInfo(info);
-	                    	Socket clientSocket = new Socket(meshInfo.inetAddress, meshInfo.port);
-	                    	ObjectOutputStream clientObjOutStream = new ObjectOutputStream(clientSocket.getOutputStream());
-	                    	clientObjOutStream.writeObject(sentPackage);
-	                    	clientObjOutStream.flush();
-	                    	clientObjOutStream.close();
-	                    	clientSocket.close();
-                    	}catch(IOException ioe) {
-                    		logger.warn(ioe.getMessage());
-                    		continue;
-                    	}
-                    }
+//                    for(ServiceInfo info : jmdns.list("_workspace._tcp.local.")) {
+//                    	try {
+//	                    	MeshNodeInfo meshInfo = new MeshNodeInfo(info);
+//	                    	Socket clientSocket = new Socket(meshInfo.inetAddress, meshInfo.port);
+//	                    	ObjectOutputStream clientObjOutStream = new ObjectOutputStream(clientSocket.getOutputStream());
+//	                    	clientObjOutStream.writeObject(sentPackage);
+//	                    	clientObjOutStream.flush();
+//	                    	clientObjOutStream.close();
+//	                    	clientSocket.close();
+//                    	}catch(IOException ioe) {
+//                    		logger.warn(ioe.getMessage());
+//                    		continue;
+//                    	}
+//                    }
             	}catch(NullPointerException npe) {
             		logger.warn("Assuming client run");
             		ServiceInfo[] infos = jmdns.list("_workspace._tcp.local.");

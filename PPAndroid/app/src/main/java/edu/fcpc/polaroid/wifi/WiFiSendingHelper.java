@@ -6,6 +6,8 @@ import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
+import com.google.common.io.Files;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -28,30 +30,14 @@ public class WiFiSendingHelper extends WiFiHelper {
         dialog.show();
     }
 
-    private final int MAX_DIMEN = 768;
+    private int MAX_DIMEN = 1024;
     @Override
     public Integer doInBackgroundInner(ObjectOutputStream objOutStream, String... params) throws IOException{
 
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         File file = new File(Fragment30.imgFile.getAbsolutePath());
-        Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
-        
-
-        int newWidth, newHeight;
-        if(bitmap.getWidth() > bitmap.getHeight()){
-            newWidth = MAX_DIMEN;
-            newHeight = bitmap.getHeight() / (bitmap.getWidth() / MAX_DIMEN);
-        }else{
-            newWidth = bitmap.getWidth() / (bitmap.getHeight() / MAX_DIMEN);
-            newHeight = MAX_DIMEN;
-        }
-
-        Bitmap resized = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true);
-        resized.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
-
         SentPackage sentPackage = new SentPackage();
         sentPackage.packageStatus = PackageStatus.PICTURE;
-        sentPackage.imagebinary = byteArrayOutputStream.toByteArray();
+        sentPackage.imagebinary = Files.toByteArray(file);
         sentPackage.filename = "A"; // TODO: Determine if this is needed
         objOutStream.writeObject(sentPackage);
         objOutStream.flush();
