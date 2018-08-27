@@ -2,7 +2,7 @@ apply plugin: 'java'
 apply plugin: 'application'
 archivesBaseName = 'DigitalFrame'
 sourceCompatibility = 1.8
-version = '1.0-SNAPSHOT'
+version = "2.1.1"
 mainClassName = 'edu.fcpc.polaroid.Main'
 
 sourceSets{
@@ -18,8 +18,16 @@ repositories {
 }
 
 jar {
+    archiveName = "DigitalFrame.jar"
     manifest {
         attributes 'Main-Class': 'edu.fcpc.polaroid.Main'
+    }
+    doLast{
+        copy{
+            from 'build/libs/DigitalFrame.jar'
+            into '../..'
+        }
+        delete('build/libs/DigitalFrame.jar')
     }
 }
 
@@ -28,4 +36,4 @@ dependencies {
    compile group: 'org.xerial', name: 'sqlite-jdbc', version: '3.8.11.2'
    compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.6.1'
    compile project(':PPCore')
-} 
+}
