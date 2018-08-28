@@ -5,26 +5,23 @@ import org.slf4j.LoggerFactory;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Frame;
 import java.awt.Graphics2D;
+import java.awt.Label;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
 import javax.imageio.ImageIO;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
 
-public class Main extends JFrame {
-    private JPanel panel = new JPanel();
-    private JLabel label = new JLabel("", SwingConstants.CENTER);
+public class Main extends Frame {
+    private Label label = new Label("", Label.CENTER);
     private Logger logger = LoggerFactory.getLogger(Main.class);
+    private BufferedImage[] image = new BufferedImage[]{null, null, null};
 
     public Main() {
         super();
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setBackground(Color.BLACK);
 
         // Initialize components
@@ -33,7 +30,7 @@ public class Main extends JFrame {
         label.setText("Starting PPJava...");
         add(label);
         pack();
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        setExtendedState(Frame.MAXIMIZED_BOTH);
         setVisible(true);
 
         // Prepare SQL database
@@ -47,47 +44,63 @@ public class Main extends JFrame {
         thread.start();
     }
 
-    public void removeStatus(){
+    public void removeStatus() {
         // Display the stage
         remove(label);
-        panel.setBackground(Color.BLACK);
-        add(panel);
         pack();
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        setExtendedState(Frame.MAXIMIZED_BOTH);
         setVisible(true);
+        clearScreen();
     }
 
     public static void main(String... args) {
         new Main();
     }
 
+    private int accessor = 0;
     public void setImage(byte[] imageByteArray) {
-        panel.repaint();
-
-        Graphics2D g2D = (Graphics2D) panel.getGraphics();
         try {
             InputStream in = new ByteArrayInputStream(imageByteArray);
             BufferedImage image = ImageIO.read(in);
-
-            float panelWidth, panelHeight, marginLeft, marginTop;
-            if (image.getWidth() > image.getHeight()) {
-                panelWidth = panel.getWidth();
-                panelHeight = image.getHeight() / ((float) image.getWidth() / (float) panel.getWidth());
-            } else {
-                panelWidth = image.getWidth() / ((float) image.getHeight() / (float) panel.getHeight());
-                panelHeight = panel.getHeight();
-            }
-            marginLeft = (panel.getWidth() - panelWidth) / 2;
-            marginTop = (panel.getHeight() - panelHeight) / 2;
-
-            g2D.setPaint(Color.BLACK);
-            g2D.fillRect(0, 0, panel.getWidth(), panel.getHeight());
-            g2D.drawImage(image, (int) marginLeft, (int) marginTop, (int) panelWidth, (int) panelHeight, Main.this);
-
-            panel.paintComponents(g2D);
+            this.image[accessor] = image;
+            accessor++;
+            if(accessor > 3)
+                accessor = 0;
         } catch (Exception e) {
             logger.error(e.getMessage());
             System.exit(-1);
         }
+        clearScreen();
+    }
+
+    public void clearScreen() {
+        Graphics2D g2D = (Graphics2D) getGraphics();
+        g2D.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
+
+        // Clear the screen
+        g2D.setPaint(Color.BLACK);
+        g2D.fillRect(0, 0, getWidth(), getHeight());
+
+        // Draw white rectangles
+        g2D.setPaint(Color.WHITE);
+        int xSpacing = (int) (getWidth() - 900) / 4;
+        int ySpacing = (int) (getHeight() - 360) / 2;
+        g2D.fillRect(xSpacing, ySpacing, 300, 360);
+        g2D.fillRect((xSpacing * 2) + 300, ySpacing, 300, 360);
+        g2D.fillRect((xSpacing * 3) + 600, ySpacing, 300, 360);
+
+        // Draw blanking plates
+        g2D.setPaint(Color.BLACK);
+        g2D.fillRect(xSpacing + 10, ySpacing + 10, 280, 280);
+        g2D.fillRect((xSpacing * 2) + 300 + 10, ySpacing + 10, 280, 280);
+        g2D.fillRect((xSpacing * 3) + 600 + 10, ySpacing + 10, 280, 280);
+
+        // Draw images
+        if (this.image[0] != null)
+            g2D.drawImage(this.image[0], xSpacing + 10, ySpacing + 10, 280, 280, Main.this);
+        if (this.image[1] != null)
+            g2D.drawImage(this.image[1], (xSpacing * 2) + 300 + 10, ySpacing + 10, 280, 280, Main.this);
+        if (this.image[2] != null)
+            g2D.drawImage(this.image[2], (xSpacing * 3) + 600 + 10, ySpacing + 10, 280, 280, Main.this);
     }
 }
