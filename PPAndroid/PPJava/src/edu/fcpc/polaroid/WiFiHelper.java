@@ -57,6 +57,7 @@ public class WiFiHelper implements Runnable {
             try {
                 // Accept incoming connections
                 Socket socket = serverSocketAndroid.accept();
+                socket.setSoTimeout(1000);
 
                 // Send server ping
                 ObjectOutputStream serverObjOutStream = new ObjectOutputStream(new BufferedOutputStream(socket.getOutputStream()));
