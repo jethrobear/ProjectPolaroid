@@ -1,8 +1,8 @@
 package edu.fcpc.polaroid.wifi;
 
 import java.net.InetAddress;
+import java.util.HashMap;
 
 public class SocketCache {
-    public static InetAddress workingAddress = null;
-    public static int workingPort = -1;
+    public static HashMap<InetAddress, Integer> workingAddresses = new HashMap<>();
 }

@@ -86,10 +86,8 @@ public class Main extends Activity implements NsdManager.DiscoveryListener {
                 @Override
                 public void onServiceResolved(NsdServiceInfo serviceInfo) {
                     Log.v("ZZ", "onServiceResolved Resolve Succeeded. " + serviceInfo);
-
-                    SocketCache.workingAddress = serviceInfo.getHost();
-                    SocketCache.workingPort = serviceInfo.getPort();
-                    Log.i("ZZ", String.format("%s:%d", SocketCache.workingAddress.getHostAddress(), SocketCache.workingPort));
+                    SocketCache.workingAddresses.put(serviceInfo.getHost(), serviceInfo.getPort());
+                    Log.i("ZZ", String.format("%s:%d", serviceInfo.getHost(), serviceInfo.getPort()));
                 }
             });
         }
@@ -97,16 +95,14 @@ public class Main extends Activity implements NsdManager.DiscoveryListener {
 
     @Override
     public void onServiceLost(NsdServiceInfo service) {
-        SocketCache.workingAddress = null;
-        SocketCache.workingPort = -1;
+        SocketCache.workingAddresses.remove(service.getHost());
         Log.e("ZZ", "service lost" + service);
     }
 
     @Override
     public void onDiscoveryStopped(String serviceType) {
-        SocketCache.workingAddress = null;
-        SocketCache.workingPort = -1;
         Log.i("ZZ", "Discovery stopped: " + serviceType);
+        // TODO: Close gracefully, notify issues found on NSD
     }
 
     @Override

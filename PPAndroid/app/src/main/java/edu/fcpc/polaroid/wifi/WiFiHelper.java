@@ -5,22 +5,25 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Set;
 
 import edu.fcpc.polaroid.BuildConfig;
 import edu.fcpc.polaroid.packets.PackageStatus;
 import edu.fcpc.polaroid.packets.SentPackage;
 
 public abstract class WiFiHelper extends AsyncTask<String, Void, SentPackage> {
-    protected ProgressDialog dialog;
-    protected Activity main;
+    ProgressDialog dialog;
+    Activity main;
 
     public WiFiHelper(Activity main) {
         this.main = main;
@@ -30,38 +33,36 @@ public abstract class WiFiHelper extends AsyncTask<String, Void, SentPackage> {
 
     @Override
     protected SentPackage doInBackground(String... params) {
-        SentPackage errorPackage = new SentPackage();
+        // Loop through all possible servers
+        for (InetAddress key : SocketCache.workingAddresses.keySet()) {
+            try {
+                Socket socket = new Socket(key, SocketCache.workingAddresses.get(key));
+                ObjectOutputStream objOutStream = new ObjectOutputStream(new BufferedOutputStream(socket.getOutputStream()));
 
-        try {
-            Socket socket = new Socket(SocketCache.workingAddress, SocketCache.workingPort);
-            ObjectOutputStream objOutStream = new ObjectOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+                // Send the packet to the server
+                doInBackgroundInner(objOutStream, params);
 
-            // Send the packet to the server
-            doInBackgroundInner(objOutStream, params);
+                // Receive message from the server
+                ObjectInputStream objInStream = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
+                SentPackage receivePackage = (SentPackage) objInStream.readObject();
+                objInStream.close();
+                socket.close();
 
-            // Receive message from the server
-            ObjectInputStream objInStream = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
-            SentPackage receivePackage = (SentPackage) objInStream.readObject();
-            objInStream.close();
-            socket.close();
-
-            return receivePackage;
-        } catch (UnknownHostException uhe) {
-            errorPackage.packageStatus = PackageStatus.HOSTNAME_NOT_FOUND;
-            errorPackage.retMessage = uhe.getMessage();
-        } catch (NullPointerException npe) {
-            errorPackage.packageStatus = PackageStatus.NO_SERVER_FOUND;
-        } catch (IOException ioe) {
-            // TODO: Add exception message here
-            // Possible broken pipe
-        } catch (ClassNotFoundException cnfe) {
-            // Do nothing
+                return receivePackage;
+            } catch (UnknownHostException uhe) {
+                Log.w("ProjectPolaroid", uhe.getMessage());
+            } catch (IOException ioe) {
+                Log.e("ProjectPolaroid", ioe.getMessage());
+            } catch (ClassNotFoundException cnfe) {
+                Log.e("ProjectPolaroid", cnfe.getMessage());
+            }
         }
-
         // Return the error message
-        if (!BuildConfig.NETWORK_BYPASS)
+        if (!BuildConfig.NETWORK_BYPASS) {
+            SentPackage errorPackage = new SentPackage();
+            errorPackage.packageStatus = PackageStatus.NO_SERVER_FOUND;
             return errorPackage;
-        else {
+        } else {
             SentPackage networkBypass = new SentPackage();
             networkBypass.packageStatus = PackageStatus.NETWORK_BYPASS;
             return networkBypass;
