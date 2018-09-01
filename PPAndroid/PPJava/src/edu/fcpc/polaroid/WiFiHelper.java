@@ -90,20 +90,21 @@ public class WiFiHelper implements Runnable {
                     }
             		
                     // Send back to the clients
-//                    for(ServiceInfo info : jmdns.list("_workspace._tcp.local.")) {
-//                    	try {
-//	                    	MeshNodeInfo meshInfo = new MeshNodeInfo(info);
-//	                    	Socket clientSocket = new Socket(meshInfo.inetAddress, meshInfo.port);
+                    for(ServiceInfo info : jmdns.list("_workspace._tcp.local.")) {
+                    	try {
+	                    	MeshNodeInfo meshInfo = new MeshNodeInfo(info);
+	                    	Socket clientSocket = new Socket(meshInfo.inetAddress, meshInfo.port);  // TODO: Send Android Packets back to clients
+                            clientSocket.setSoTimeout(1000);
 //	                    	ObjectOutputStream clientObjOutStream = new ObjectOutputStream(clientSocket.getOutputStream());
 //	                    	clientObjOutStream.writeObject(sentPackage);
 //	                    	clientObjOutStream.flush();
 //	                    	clientObjOutStream.close();
 //	                    	clientSocket.close();
-//                    	}catch(IOException ioe) {
-//                    		logger.warn(ioe.getMessage());
-//                    		continue;
-//                    	}
-//                    }
+                    	}catch(IOException ioe) {
+                    		logger.warn(ioe.getMessage());
+                    		continue;
+                    	}
+                    }
             	}catch(NullPointerException npe) {
             		logger.warn("Assuming client run");
             		ServiceInfo[] infos = jmdns.list("_workspace._tcp.local.");

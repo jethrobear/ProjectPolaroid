@@ -17,11 +17,13 @@ repositories {
     mavenCentral()
 }
 
-jar {
-    archiveName = "DigitalFrame.jar"
+task fatJar(type: Jar) {
     manifest {
         attributes 'Main-Class': 'edu.fcpc.polaroid.Main'
     }
+    archiveName = 'DigitalFrame.jar'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
     doLast{
         copy{
             from 'build/libs/DigitalFrame.jar'
