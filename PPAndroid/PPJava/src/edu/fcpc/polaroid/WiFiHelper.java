@@ -76,9 +76,16 @@ public class WiFiHelper implements Runnable {
                 String password = sentPackage.password;
                 String lastname = sentPackage.lastname;
                 String firstname = sentPackage.firstname;
-                int birthmonth = Integer.parseInt(sentPackage.birthmonth);
-                int birthday = Integer.parseInt(sentPackage.birthday);
-                int birthyear = Integer.parseInt(sentPackage.birthyear);
+
+                int birthmonth = Integer.MIN_VALUE;
+                if (sentPackage.birthmonth != null)
+                    birthmonth = Integer.parseInt(sentPackage.birthmonth);
+                int birthday = Integer.MIN_VALUE;
+                if (sentPackage.birthday != null)
+                    birthday = Integer.parseInt(sentPackage.birthday);
+                int birthyear = Integer.MIN_VALUE;
+                if (sentPackage.birthyear != null)
+                    birthyear = Integer.parseInt(sentPackage.birthyear);
 
                 // Process the data sent
                 switch (sentPackage.packageStatus) {
