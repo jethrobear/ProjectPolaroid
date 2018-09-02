@@ -60,13 +60,6 @@ public class WiFiHelper implements Runnable {
                 Socket socket = serverSocketAndroid.accept();
                 socket.setSoTimeout(1000);
 
-                // Send server ping
-                ObjectOutputStream serverObjOutStream = new ObjectOutputStream(new BufferedOutputStream(socket.getOutputStream()));
-                SentPackage serverPackage = new SentPackage();
-                serverPackage.packageStatus = PackageStatus.SERVER_PING;
-                serverObjOutStream.writeObject(serverPackage);
-                serverObjOutStream.flush();
-
                 // Read incoming bytes (Unknown origin)
                 ObjectInputStream objInStream = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
                 SentPackage sentPackage = (SentPackage) objInStream.readObject();
