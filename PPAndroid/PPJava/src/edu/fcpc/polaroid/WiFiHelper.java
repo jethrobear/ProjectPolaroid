@@ -46,6 +46,7 @@ public class WiFiHelper implements Runnable {
             serviceInfoAndroid = ServiceInfo.create("_http._tcp.local.", UUID.randomUUID().toString(),
                     serverSocketAndroid.getLocalPort(), "");
             jmdns.registerService(serviceInfoAndroid);
+            main.removeStatus();
         } catch (IOException ioe) {
             logger.warn(ioe.getMessage());
         }
