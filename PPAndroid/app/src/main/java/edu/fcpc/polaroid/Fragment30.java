@@ -79,6 +79,17 @@ public class Fragment30 extends Fragment {
             // Start the intent
             if (intent.resolveActivity(getActivity().getPackageManager()) != null)
                 super.startActivityForResult(intent, requestCode);
+            else
+                new AlertDialog.Builder(Fragment30.this.getActivity())
+                        .setTitle("Software issue")
+                .setCancelable(false)
+                .setMessage("No camera app can be called")
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                }).create().show();
         } catch (IOException ioe) {
             new AlertDialog.Builder(getActivity())
                     .setTitle("Image file")
