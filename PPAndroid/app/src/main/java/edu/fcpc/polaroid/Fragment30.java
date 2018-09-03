@@ -5,6 +5,10 @@ import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -21,6 +25,7 @@ import android.widget.Toast;
 import com.google.common.io.Files;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -70,7 +75,7 @@ public class Fragment30 extends Fragment {
             intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
 
             // Start the intent
-            if(intent.resolveActivity(getActivity().getPackageManager()) != null)
+            if (intent.resolveActivity(getActivity().getPackageManager()) != null)
                 super.startActivityForResult(intent, requestCode);
         } catch (IOException ioe) {
             new AlertDialog.Builder(getActivity())
@@ -89,6 +94,40 @@ public class Fragment30 extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_OK && requestCode == CAMERA_INTENT_REQUEST_CODE) {
+            // Attempt to rotate the image
+            try {
+                ExifInterface exifInterface = new ExifInterface(imgFile.getAbsolutePath());
+                int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
+                int rotation = 0;
+                switch (orientation) {
+                    case ExifInterface.ORIENTATION_ROTATE_90:
+                        rotation = 90;
+                        break;
+                    case ExifInterface.ORIENTATION_ROTATE_180:
+                        rotation = 180;
+                        break;
+                    case ExifInterface.ORIENTATION_ROTATE_270:
+                        rotation = 270;
+                        break;
+                    default:
+                }
+                Matrix matrix = new Matrix();
+                matrix.postRotate(rotation);
+                Bitmap normalImage = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+                Bitmap rotatedImage = Bitmap.createBitmap(normalImage, 0, 0, normalImage.getWidth(), normalImage.getHeight(), matrix, true);
+
+                // Replace the image
+                if(imgFile.exists())
+                    imgFile.delete();
+                imgFile.createNewFile();
+                FileOutputStream fileOutStream = new FileOutputStream(imgFile);
+                rotatedImage.compress(Bitmap.CompressFormat.PNG, 100, fileOutStream);
+                fileOutStream.flush();
+                fileOutStream.close();
+            } catch (IOException ioe) {
+                Log.e("ProjectPolaroid", ioe.getMessage());
+            }
+
             AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
             dialog.setTitle("Alert Box")
                     .setMessage("Do you want to send this captured photo to the digital frame?")
