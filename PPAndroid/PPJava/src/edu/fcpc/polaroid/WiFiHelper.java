@@ -10,10 +10,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -29,6 +32,8 @@ public class WiFiHelper implements Runnable {
     private Logger logger = LoggerFactory.getLogger(WiFiHelper.class);
     private ServiceInfo serviceInfoAndroid;
     private JmDNS jmdns;
+    private InetSocketAddress serverAddress;
+    private int serverCount = 0;
 
     public WiFiHelper(Main main) {
         this.main = main;
@@ -40,9 +45,11 @@ public class WiFiHelper implements Runnable {
         try {
             jmdns = JmDNS.create();
             serverSocketAndroid = new ServerSocket(0);
+            serverAddress = new InetSocketAddress(serverSocketAndroid.getInetAddress(), serverSocketAndroid.getLocalPort());
+            new ServerMeshWatchdog(serverAddress.getAddress(), serverAddress.getPort());
             logger.info(String.format(Locale.ENGLISH, "Initialised server connection as %s:%d",
-                    serverSocketAndroid.getInetAddress().getHostAddress(),
-                    serverSocketAndroid.getLocalPort()));
+                    serverAddress.getAddress().getHostAddress(),
+                    serverAddress.getPort()));
             serviceInfoAndroid = ServiceInfo.create("_http._tcp.local.", UUID.randomUUID().toString(),
                     serverSocketAndroid.getLocalPort(), "");
             jmdns.registerService(serviceInfoAndroid);
@@ -52,7 +59,6 @@ public class WiFiHelper implements Runnable {
         }
 
         // Try to read something from it
-        int serverCount = 0;
         for (; ; ) {
             // TODO: Need for-loop here for each individual sockets
             try {
@@ -95,6 +101,7 @@ public class WiFiHelper implements Runnable {
                             fileOutputStream.flush();
                             fileOutputStream.close();
 
+                            // TODO: This should be checked first
                             main.setImage(sentPackage.imagebinary);
                             returnPackage.packageStatus = PackageStatus.PICTURE_RESPONSE_OK;
                         } catch (IOException ioe) {
@@ -144,7 +151,13 @@ public class WiFiHelper implements Runnable {
                         }
                         break;
                     case SERVER_PING:
-                        //DO SOMETHING
+                        HashMap<InetSocketAddress, Integer> registers = sentPackage.registers;
+                        if(!registers.containsValue(serverAddress)) {
+                            serverCount = Collections.max(registers.values()) + 1;
+                            ServerMeshWatchdog.registers.put(serverAddress, serverCount);
+                        }else{
+                            serverCount = registers.get(serverAddress);
+                        }
                         break;
                     default:
                         break;
