@@ -8,8 +8,13 @@ import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceInfo;
@@ -19,12 +24,14 @@ import edu.fcpc.polaroid.packets.SentPackage;
 
 public class ServerMeshWatchdog implements Runnable {
     private JmDNS jmdns;
-    public static HashMap<InetSocketAddress, Integer> registers = new HashMap<>();
+    public int serverCount = -1;
+    private HashMap<ServiceInfo, Integer> localRegister = new HashMap<>();
     private InetAddress localAddress;
+    private int localPort;
 
     public ServerMeshWatchdog(InetAddress inetAddress, int port) {
         localAddress = inetAddress;
-        registers.put(new InetSocketAddress(inetAddress, port), 0);
+        localPort = port;
         Thread thread = new Thread(this);
         thread.start();
     }
@@ -36,30 +43,38 @@ public class ServerMeshWatchdog implements Runnable {
 
             // Loop through all the machines in the sub-subnet
             for (; ; ) {
-                for (ServiceInfo info : jmdns.list("_http._tcp.local.")) {
-                    // Exclude sending to itself
-                    if(address[0].getAddress().equals(localAddress.getAddress()))
+                List<ServiceInfo> providers = Arrays.asList(jmdns.list("_http._tcp.local."));
+                ArrayList<String> providersTimestamps = new ArrayList<>();
+                for (ServiceInfo info : providers)
+                    providersTimestamps.add(new String(info.getTextBytes()));
+                Collections.sort(providersTimestamps);
 
-                    LoggerFactory.getLogger(ServerMeshWatchdog.class).info("Sending register entries:");
-                    for (Map.Entry<InetSocketAddress, Integer> address : registers.entrySet()) {
-                        LoggerFactory.getLogger(ServerMeshWatchdog.class).info(String.format("%d | %s:%d", address.getValue(),
-                                address.getKey().getHostName(), address.getKey().getPort()));
+                // Determine local provider's instance in `providers`
+                ServiceInfo localProvider = null;
+                for (ServiceInfo info : providers) {
+                    if (Arrays.asList(info.getHostAddresses()).contains(localAddress.getHostAddress()) &&
+                            info.getPort() == localPort) {
+                        localProvider = info;
+                        break;
                     }
-                    Socket socket = new Socket(info.getHostAddresses()[0], info.getPort());
-                    socket.setSoTimeout(1000);
-                    ObjectOutputStream objOutStream = new ObjectOutputStream(new BufferedOutputStream(socket.getOutputStream()));
-                    SentPackage sentPackage = new SentPackage();
-                    sentPackage.packageStatus = PackageStatus.SERVER_PING;
-                    sentPackage.registers = registers;
-                    objOutStream.writeObject(sentPackage);
-                    objOutStream.flush();
-                    objOutStream.close();
-                    socket.close();
                 }
+
+                // Assign the server's number via sorted array
+                int newServerCount;
+                if (localProvider != null)
+                    newServerCount = providersTimestamps.indexOf(new String(localProvider.getTextBytes()));
+                else
+                    newServerCount = -1;
+                if (newServerCount != serverCount) {
+                    serverCount = newServerCount;
+                    LoggerFactory.getLogger(ServerMeshWatchdog.class).info(String.format("Server assigned as #%d", serverCount));
+                }
+
+                // TODO: Send existing images here as well
             }
-        } catch (IOException ioe) {
+        } catch (IOException e) {
             // TODO: Check issue here
-            LoggerFactory.getLogger(ServerMeshWatchdog.class).error(ioe.getMessage());
+            LoggerFactory.getLogger(ServerMeshWatchdog.class).error(e.getMessage());
         }
     }
 }

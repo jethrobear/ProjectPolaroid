@@ -34,7 +34,6 @@ public class WiFiHelper implements Runnable {
     private ServiceInfo serviceInfoAndroid;
     private JmDNS jmdns;
     private InetSocketAddress serverAddress;
-    private int serverCount = 0;
 
     public WiFiHelper(Main main) {
         this.main = main;
@@ -52,7 +51,7 @@ public class WiFiHelper implements Runnable {
                     serverAddress.getAddress().getHostAddress(),
                     serverAddress.getPort()));
             serviceInfoAndroid = ServiceInfo.create("_http._tcp.local.", UUID.randomUUID().toString(),
-                    serverSocketAndroid.getLocalPort(), "");
+                    serverSocketAndroid.getLocalPort(), String.valueOf(System.currentTimeMillis() / 1000L));
             jmdns.registerService(serviceInfoAndroid);
             main.removeStatus();
         } catch (IOException ioe) {
@@ -150,16 +149,6 @@ public class WiFiHelper implements Runnable {
                                 returnPackage.packageStatus = PackageStatus.REGISTER_RESPONSE_FAIL;
                             returnPackage.retMessage = createRetMsg;
                         }
-                        break;
-                    case SERVER_PING:
-                        HashMap<InetSocketAddress, Integer> registers = sentPackage.registers;
-                        if (registers.get(serverAddress) == null) {
-                            serverCount = Collections.max(registers.values()) + 1;
-                            ServerMeshWatchdog.registers.put(serverAddress, serverCount);
-                        } else {
-                            serverCount = registers.get(serverAddress);
-                        }
-                        logger.info(String.format("This server is called %s:%d at position %d", serverAddress.getHostName(), serverAddress.getPort(), serverCount));
                         break;
                     default:
                         break;
