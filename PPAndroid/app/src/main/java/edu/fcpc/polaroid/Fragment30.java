@@ -6,6 +6,8 @@ import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -31,6 +33,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import edu.fcpc.polaroid.wifi.WiFiSendingHelper;
 
@@ -68,12 +71,20 @@ public class Fragment30 extends Fragment {
             imgFile = File.createTempFile("ppandroid", ".png", getActivity().getCacheDir());
 
             // Get the file's URI
-            Uri photoUri = Uri.fromFile(imgFile);
-            if (Build.VERSION.SDK_INT >= 24)
-                photoUri = FileProvider.getUriForFile(getActivity(), getActivity().getApplicationContext().getPackageName() + ".provider", imgFile);
+            Uri photoUri = FileProvider.getUriForFile(getActivity(), getActivity().getApplicationContext().getPackageName() + ".provider", imgFile);
 
             // Add intent data
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            // Allow Pre-Lollipop to do use FileProviders (Hackish)
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                List<ResolveInfo> resInfoList = getActivity().getPackageManager().queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+                for (ResolveInfo resolveInfo : resInfoList) {
+                    String packageName = resolveInfo.activityInfo.packageName;
+                    getActivity().grantUriPermission(packageName, photoUri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                }
+                // Allow Post-Lollipop to do use FileProviders (Normal)
+            } else {
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            }
             intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
 
             // Start the intent
@@ -82,14 +93,14 @@ public class Fragment30 extends Fragment {
             else
                 new AlertDialog.Builder(Fragment30.this.getActivity())
                         .setTitle("Software issue")
-                .setCancelable(false)
-                .setMessage("No camera app can be called")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                }).create().show();
+                        .setCancelable(false)
+                        .setMessage("No camera app can be called")
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        }).create().show();
         } catch (IOException ioe) {
             new AlertDialog.Builder(getActivity())
                     .setTitle("Image file")
