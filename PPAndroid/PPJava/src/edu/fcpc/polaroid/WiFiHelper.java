@@ -10,6 +10,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -45,8 +46,8 @@ public class WiFiHelper implements Runnable {
         try {
             jmdns = JmDNS.create();
             serverSocketAndroid = new ServerSocket(0);
-            serverAddress = new InetSocketAddress(serverSocketAndroid.getInetAddress(), serverSocketAndroid.getLocalPort());
-            new ServerMeshWatchdog(serverAddress.getAddress(), serverAddress.getPort());
+            serverAddress = new InetSocketAddress(InetAddress.getLocalHost(), serverSocketAndroid.getLocalPort());
+            new ServerMeshWatchdog(InetAddress.getLocalHost(), serverSocketAndroid.getLocalPort());
             logger.info(String.format(Locale.ENGLISH, "Initialised server connection as %s:%d",
                     serverAddress.getAddress().getHostAddress(),
                     serverAddress.getPort()));
@@ -152,12 +153,13 @@ public class WiFiHelper implements Runnable {
                         break;
                     case SERVER_PING:
                         HashMap<InetSocketAddress, Integer> registers = sentPackage.registers;
-                        if(!registers.containsValue(serverAddress)) {
+                        if (registers.get(serverAddress) == null) {
                             serverCount = Collections.max(registers.values()) + 1;
                             ServerMeshWatchdog.registers.put(serverAddress, serverCount);
-                        }else{
+                        } else {
                             serverCount = registers.get(serverAddress);
                         }
+                        logger.info(String.format("This server is called %s:%d at position %d", serverAddress.getHostName(), serverAddress.getPort(), serverCount));
                         break;
                     default:
                         break;
