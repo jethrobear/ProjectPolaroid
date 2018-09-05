@@ -35,7 +35,7 @@ public class WiFiSendingHelper extends WiFiHelper {
         SentPackage sentPackage = new SentPackage();
         sentPackage.packageStatus = PackageStatus.PICTURE;
         sentPackage.imagebinary = Files.toByteArray(file);
-        sentPackage.filename = "A"; // TODO: Determine if this is needed
+        sentPackage.filename = file.getName();
         objOutStream.writeObject(sentPackage);
         objOutStream.flush();
 

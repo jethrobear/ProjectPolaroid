@@ -92,8 +92,7 @@ public class WiFiHelper implements Runnable {
                         try {
                             File path = new File("Pictures");
                             path.mkdirs();
-                            File file = new File(path.getAbsolutePath(),
-                                    new SimpleDateFormat("MMddyyyy_hhmmss").format(new Date()) + ".jpg");
+                            File file = new File(path.getAbsolutePath(), sentPackage.filename);
                             FileOutputStream fileOutputStream = new FileOutputStream(file);
                             fileOutputStream.write(sentPackage.imagebinary);
                             fileOutputStream.flush();
