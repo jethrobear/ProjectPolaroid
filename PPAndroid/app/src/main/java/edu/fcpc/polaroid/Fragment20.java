@@ -37,12 +37,12 @@ public class Fragment20 extends Fragment {
         dialog = new ProgressDialog(main);
         dialog.setCancelable(false);
         txtUsername = (EditText) rootView.findViewById(R.id.txtUsername);
-		txtPassword = (EditText) rootView.findViewById(R.id.txtPassword);
-		Button btnLogin2 = (Button) rootView.findViewById(R.id.btnLogin2);
-		
-		btnLogin2.setOnClickListener(new View.OnClickListener() {
+        txtPassword = (EditText) rootView.findViewById(R.id.txtPassword);
+        Button btnLogin2 = (Button) rootView.findViewById(R.id.btnLogin2);
+
+        btnLogin2.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if(txtUsername.getText().toString().equals("") || txtPassword.getText().toString().equals("")){
+                if (txtUsername.getText().toString().equals("") || txtPassword.getText().toString().equals("")) {
                     new AlertDialog.Builder(getActivity())
                             .setTitle("Alert Box")
                             .setCancelable(false)
@@ -58,7 +58,7 @@ public class Fragment20 extends Fragment {
                 btLoginSendHlpr.execute(txtUsername.getText().toString(), txtPassword.getText().toString());
             }
         });
-		// TODO: Move after logging in
+        // TODO: Move after logging in
 
         return rootView;
     }
