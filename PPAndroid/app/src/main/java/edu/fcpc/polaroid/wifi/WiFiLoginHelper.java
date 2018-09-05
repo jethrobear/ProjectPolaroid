@@ -15,19 +15,18 @@ import edu.fcpc.polaroid.packets.PackageStatus;
 import edu.fcpc.polaroid.packets.SentPackage;
 
 public class WiFiLoginHelper extends WiFiHelper {
-    public WiFiLoginHelper(Activity main){
+    public WiFiLoginHelper(Activity main) {
         super(main);
     }
 
     @Override
-    protected void onPreExecute()
-    {
+    protected void onPreExecute() {
         dialog.setMessage("Sending login to Digital Frame");
         dialog.show();
     }
 
     @Override
-    public Integer doInBackgroundInner(ObjectOutputStream objOutStream, String... params) throws IOException{
+    public Integer doInBackgroundInner(ObjectOutputStream objOutStream, String... params) throws IOException {
         SentPackage sentPackage = new SentPackage();
         sentPackage.packageStatus = PackageStatus.LOGIN;
         sentPackage.username = params[0];
@@ -40,15 +39,16 @@ public class WiFiLoginHelper extends WiFiHelper {
     }
 
     private int retries = 0;
+
     @Override
     public void onPostExecuteAfter(SentPackage sentPackage) {
-        if(sentPackage.packageStatus == PackageStatus.LOGIN_RESPONSE_OK || sentPackage.packageStatus == PackageStatus.NETWORK_BYPASS) {
+        if (sentPackage.packageStatus == PackageStatus.LOGIN_RESPONSE_OK || sentPackage.packageStatus == PackageStatus.NETWORK_BYPASS) {
             // Login successful
             Fragment30 fragment30 = new Fragment30();
             FragmentTransaction fragmentTransaction = main.getFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.main_frame, fragment30, fragment30.toString());
             fragmentTransaction.commit();
-        }else if(sentPackage.packageStatus == PackageStatus.LOGIN_RESPONSE_FAIL && retries <= 1){
+        } else if (sentPackage.packageStatus == PackageStatus.LOGIN_RESPONSE_FAIL && retries <= 1) {
             new AlertDialog.Builder(main)
                     .setTitle("Alert Box")
                     .setCancelable(false)
@@ -59,7 +59,7 @@ public class WiFiLoginHelper extends WiFiHelper {
                             dialog.dismiss();
                         }
                     }).create().show();
-        }else{
+        } else {
             new AlertDialog.Builder(main)
                     .setTitle("Alert Box")
                     .setCancelable(false)

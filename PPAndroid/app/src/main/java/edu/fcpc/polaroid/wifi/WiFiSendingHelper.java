@@ -3,12 +3,9 @@ package edu.fcpc.polaroid.wifi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 
 import com.google.common.io.Files;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -19,20 +16,20 @@ import edu.fcpc.polaroid.packets.SentPackage;
 
 public class WiFiSendingHelper extends WiFiHelper {
 
-    public WiFiSendingHelper(Activity main){
+    public WiFiSendingHelper(Activity main) {
         super(main);
     }
 
     @Override
-    protected void onPreExecute()
-    {
+    protected void onPreExecute() {
         dialog.setMessage("Sending image to Digital Frame");
         dialog.show();
     }
 
     private int MAX_DIMEN = 1024;
+
     @Override
-    public Integer doInBackgroundInner(ObjectOutputStream objOutStream, String... params) throws IOException{
+    public Integer doInBackgroundInner(ObjectOutputStream objOutStream, String... params) throws IOException {
 
         File file = new File(Fragment30.imgFile.getAbsolutePath());
         SentPackage sentPackage = new SentPackage();
@@ -47,7 +44,7 @@ public class WiFiSendingHelper extends WiFiHelper {
 
     @Override
     public void onPostExecuteAfter(SentPackage sentPackage) {
-        if(sentPackage.packageStatus == PackageStatus.PICTURE_RESPONSE_OK)
+        if (sentPackage.packageStatus == PackageStatus.PICTURE_RESPONSE_OK)
             new AlertDialog.Builder(main)
                     .setTitle("Picture")
                     .setCancelable(false)
@@ -58,7 +55,7 @@ public class WiFiSendingHelper extends WiFiHelper {
                             dialog.dismiss();
                         }
                     }).create().show();
-        else if(sentPackage.packageStatus == PackageStatus.PICTURE_RESPONSE_FAIL)
+        else if (sentPackage.packageStatus == PackageStatus.PICTURE_RESPONSE_FAIL)
             new AlertDialog.Builder(main)
                     .setTitle("Picture")
                     .setCancelable(false)

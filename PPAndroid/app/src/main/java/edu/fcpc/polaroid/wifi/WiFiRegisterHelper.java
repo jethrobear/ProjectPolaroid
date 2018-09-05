@@ -16,19 +16,18 @@ import edu.fcpc.polaroid.packets.SentPackage;
 
 public class WiFiRegisterHelper extends WiFiHelper {
 
-    public WiFiRegisterHelper(Activity main){
+    public WiFiRegisterHelper(Activity main) {
         super(main);
     }
 
     @Override
-    protected void onPreExecute()
-    {
+    protected void onPreExecute() {
         dialog.setMessage("Sending image to Digital Frame");
         dialog.show();
     }
 
     @Override
-    public Integer doInBackgroundInner(ObjectOutputStream objOutStream, String... params) throws IOException{
+    public Integer doInBackgroundInner(ObjectOutputStream objOutStream, String... params) throws IOException {
 
         SentPackage sentPackage = new SentPackage();
         sentPackage.packageStatus = PackageStatus.REGISTER;
@@ -48,7 +47,7 @@ public class WiFiRegisterHelper extends WiFiHelper {
 
     @Override
     public void onPostExecuteAfter(SentPackage sentPackage) {
-        if(sentPackage.packageStatus == PackageStatus.REGISTER_RESPONSE_OK){
+        if (sentPackage.packageStatus == PackageStatus.REGISTER_RESPONSE_OK) {
             new AlertDialog.Builder(main)
                     .setTitle("Register")
                     .setCancelable(false)
@@ -59,7 +58,7 @@ public class WiFiRegisterHelper extends WiFiHelper {
                             main.getFragmentManager().popBackStackImmediate();
                         }
                     }).create().show();
-        }else if(sentPackage.packageStatus == PackageStatus.REGISTER_RESPONSE_FAIL){
+        } else if (sentPackage.packageStatus == PackageStatus.REGISTER_RESPONSE_FAIL) {
             new AlertDialog.Builder(main)
                     .setTitle("Register")
                     .setCancelable(false)
