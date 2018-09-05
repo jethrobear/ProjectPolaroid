@@ -2,25 +2,16 @@ package edu.fcpc.polaroid;
 
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceInfo;
-
-import edu.fcpc.polaroid.packets.PackageStatus;
-import edu.fcpc.polaroid.packets.SentPackage;
 
 public class ServerMeshWatchdog implements Runnable {
     private JmDNS jmdns;

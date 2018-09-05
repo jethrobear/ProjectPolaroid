@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -47,7 +46,7 @@ public class Main extends JFrame {
         thread.start();
     }
 
-    public void removeStatus(){
+    public void removeStatus() {
         // Display the stage
         remove(label);
         panel.setBackground(Color.BLACK);
