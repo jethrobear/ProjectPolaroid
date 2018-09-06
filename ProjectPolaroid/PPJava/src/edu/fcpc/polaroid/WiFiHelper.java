@@ -14,14 +14,13 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Locale;
 import java.util.UUID;
 
 import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceInfo;
 
+import edu.fcpc.polaroid.helper.SQLHelper;
 import edu.fcpc.polaroid.packets.PackageStatus;
 import edu.fcpc.polaroid.packets.SentPackage;
 

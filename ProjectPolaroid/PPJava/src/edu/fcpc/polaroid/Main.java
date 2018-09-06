@@ -16,6 +16,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
+import edu.fcpc.polaroid.helper.SQLHelper;
+
 public class Main extends JFrame {
     private JPanel panel = new JPanel();
     private JLabel label = new JLabel("", SwingConstants.CENTER);
