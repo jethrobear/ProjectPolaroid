@@ -1,6 +1,11 @@
 package edu.fcpc.polaroid.helper;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -26,5 +31,14 @@ public class MDNSHelper {
         ServiceInfo serviceInfo = ServiceInfo.create("_http._tcp.local.", MDNSHelper.getLatestServerInstance(),
                 port, String.valueOf(System.currentTimeMillis() / 1000L));
         jmdns.registerService(serviceInfo);
+    }
+
+    public static ImmutablePair<InetAddress[], Integer>[] getServerSockets() throws IOException{
+        JmDNS jmdns = JmDNS.create();
+        ArrayList<ImmutablePair<InetAddress[], Integer>> socketAddresses = new ArrayList<>();
+        for(ServiceInfo info : jmdns.list("_http._tcp.local.")){
+            socketAddresses.add(new ImmutablePair(info.getInetAddresses(), info.getPort()));
+        }
+        return socketAddresses.toArray(new ImmutablePair[]{});
     }
 }

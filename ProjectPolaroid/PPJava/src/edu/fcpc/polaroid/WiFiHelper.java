@@ -37,7 +37,7 @@ public class WiFiHelper implements Runnable {
         try {
             serverSocketAndroid = new ServerSocket(0);
             serverAddress = new InetSocketAddress(InetAddress.getLocalHost(), serverSocketAndroid.getLocalPort());
-            new ServerMeshWatchdog(InetAddress.getLocalHost(), serverSocketAndroid.getLocalPort());
+            new ServerMeshWatchdog();
             logger.info(String.format(Locale.ENGLISH, "Initialised server connection as %s:%d",
                     serverAddress.getAddress().getHostAddress(),
                     serverAddress.getPort()));
