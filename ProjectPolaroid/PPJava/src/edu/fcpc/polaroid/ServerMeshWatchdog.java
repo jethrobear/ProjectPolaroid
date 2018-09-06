@@ -27,7 +27,6 @@ import edu.fcpc.polaroid.packets.SentPackage;
 public class ServerMeshWatchdog implements Runnable {
     private JmDNS jmdns;
     public int serverCount = -1;
-    private HashMap<ServiceInfo, Integer> localRegister = new HashMap<>();
     private InetAddress localAddress;
     private int localPort;
 

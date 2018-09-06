@@ -15,11 +15,8 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Locale;
-import java.util.UUID;
 
-import javax.jmdns.JmDNS;
-import javax.jmdns.ServiceInfo;
-
+import edu.fcpc.polaroid.helper.MDNSHelper;
 import edu.fcpc.polaroid.helper.SQLHelper;
 import edu.fcpc.polaroid.packets.PackageStatus;
 import edu.fcpc.polaroid.packets.SentPackage;
@@ -28,8 +25,6 @@ public class WiFiHelper implements Runnable {
     private Main main;
     private ServerSocket serverSocketAndroid;
     private Logger logger = LoggerFactory.getLogger(WiFiHelper.class);
-    private ServiceInfo serviceInfoAndroid;
-    private JmDNS jmdns;
     private InetSocketAddress serverAddress;
 
     public WiFiHelper(Main main) {
@@ -40,16 +35,13 @@ public class WiFiHelper implements Runnable {
     public void run() {
         // Register the service on mDNS
         try {
-            jmdns = JmDNS.create();
             serverSocketAndroid = new ServerSocket(0);
             serverAddress = new InetSocketAddress(InetAddress.getLocalHost(), serverSocketAndroid.getLocalPort());
             new ServerMeshWatchdog(InetAddress.getLocalHost(), serverSocketAndroid.getLocalPort());
             logger.info(String.format(Locale.ENGLISH, "Initialised server connection as %s:%d",
                     serverAddress.getAddress().getHostAddress(),
                     serverAddress.getPort()));
-            serviceInfoAndroid = ServiceInfo.create("_http._tcp.local.", UUID.randomUUID().toString(),
-                    serverSocketAndroid.getLocalPort(), String.valueOf(System.currentTimeMillis() / 1000L));
-            jmdns.registerService(serviceInfoAndroid);
+            MDNSHelper.setupMDNSInstance(serverSocketAndroid.getLocalPort());
             main.removeStatus();
         } catch (IOException ioe) {
             logger.warn(ioe.getMessage());
