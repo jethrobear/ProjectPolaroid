@@ -1,4 +1,4 @@
-package edu.fcpc.polaroid;
+package edu.fcpc.polaroid.constants;
 
 public enum PermissionResults {
     CAMERA_INTENT_AFTER_LOGIN,

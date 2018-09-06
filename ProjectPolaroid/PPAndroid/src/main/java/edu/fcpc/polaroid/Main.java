@@ -15,7 +15,8 @@ import android.util.Log;
 
 import java.util.ArrayList;
 
-import edu.fcpc.polaroid.wifi.SocketCache;
+import edu.fcpc.polaroid.constants.PermissionResults;
+import edu.fcpc.polaroid.data.SocketCache;
 
 public class Main extends Activity implements NsdManager.DiscoveryListener {
     private NsdManager mNsdManager;

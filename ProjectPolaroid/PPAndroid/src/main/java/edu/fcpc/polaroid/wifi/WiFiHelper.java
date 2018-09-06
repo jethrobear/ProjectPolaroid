@@ -17,6 +17,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 import edu.fcpc.polaroid.BuildConfig;
+import edu.fcpc.polaroid.data.SocketCache;
 import edu.fcpc.polaroid.packets.PackageStatus;
 import edu.fcpc.polaroid.packets.SentPackage;
 

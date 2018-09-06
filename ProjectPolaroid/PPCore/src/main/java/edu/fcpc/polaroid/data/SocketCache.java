@@ -1,4 +1,4 @@
-package edu.fcpc.polaroid.wifi;
+package edu.fcpc.polaroid.data;
 
 import java.net.InetAddress;
 import java.util.HashMap;
