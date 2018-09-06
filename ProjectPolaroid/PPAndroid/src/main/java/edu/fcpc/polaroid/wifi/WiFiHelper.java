@@ -7,6 +7,8 @@ import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -34,9 +36,9 @@ public abstract class WiFiHelper extends AsyncTask<String, Void, SentPackage> {
     @Override
     protected SentPackage doInBackground(String... params) {
         // Loop through all possible servers
-        for (InetAddress key : SocketCache.workingAddresses.keySet()) {
+        for (ImmutablePair<InetAddress, Integer> key : SocketCache.workingAddresses.values()) {
             try {
-                Socket socket = new Socket(key, SocketCache.workingAddresses.get(key));
+                Socket socket = new Socket(key.getLeft(), key.getRight());
                 ObjectOutputStream objOutStream = new ObjectOutputStream(new BufferedOutputStream(socket.getOutputStream()));
 
                 // Send the packet to the server

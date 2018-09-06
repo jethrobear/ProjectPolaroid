@@ -13,6 +13,9 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+
+import java.net.InetAddress;
 import java.util.ArrayList;
 
 import edu.fcpc.polaroid.constants.PermissionResults;
@@ -86,9 +89,8 @@ public class Main extends Activity implements NsdManager.DiscoveryListener {
 
                 @Override
                 public void onServiceResolved(NsdServiceInfo serviceInfo) {
-                    Log.v("ZZ", "onServiceResolved Resolve Succeeded. " + serviceInfo);
-                    SocketCache.workingAddresses.put(serviceInfo.getHost(), serviceInfo.getPort());
-                    Log.i("ZZ", String.format("%s:%d", serviceInfo.getHost(), serviceInfo.getPort()));
+                    SocketCache.workingAddresses.put(serviceInfo.getServiceName(), new ImmutablePair<InetAddress, Integer>(serviceInfo.getHost(), serviceInfo.getPort()));
+                    Log.i("ZZ", String.format("onServiceResolved Resolve Succeeded. \n\t %s:%d", serviceInfo.getHost(), serviceInfo.getPort()));
                 }
             });
         }
@@ -96,7 +98,7 @@ public class Main extends Activity implements NsdManager.DiscoveryListener {
 
     @Override
     public void onServiceLost(NsdServiceInfo service) {
-        SocketCache.workingAddresses.remove(service.getHost());
+        SocketCache.workingAddresses.remove(service.getServiceName());
         Log.e("ZZ", "service lost" + service);
     }
 
