@@ -1,0 +1,3 @@
+include ':PPAndroid'
+include ':PPJava'
+include ':PPCore'
