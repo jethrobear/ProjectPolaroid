@@ -4,8 +4,12 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.net.InetAddress;
+import java.util.HashMap;
 
 import edu.fcpc.polaroid.packets.PackageStatus;
 import edu.fcpc.polaroid.packets.SentPackage;
@@ -46,23 +50,37 @@ public class WiFiRegisterHelper extends WiFiHelper {
     }
 
     @Override
-    public void onPostExecuteAfter(SentPackage sentPackage) {
-        if (sentPackage.packageStatus == PackageStatus.REGISTER_RESPONSE_OK) {
+    public void onPostExecuteAfter(HashMap<ImmutablePair<InetAddress, Integer>, SentPackage> results) {
+        String regFirstName = "", regLastName = "";
+        StringBuilder retMessage = new StringBuilder();
+        boolean hasSuccessfulRegistration = false;
+        for (SentPackage sentPackage : results.values()) {
+            if (sentPackage.packageStatus == PackageStatus.REGISTER_RESPONSE_OK) {
+                regFirstName = sentPackage.firstname;
+                regLastName = sentPackage.lastname;
+                hasSuccessfulRegistration = true;
+                break;
+            } else {
+                retMessage.append(sentPackage.retMessage + "\n");
+            }
+        }
+
+        if (hasSuccessfulRegistration) {
             new AlertDialog.Builder(main)
                     .setTitle("Register")
                     .setCancelable(false)
-                    .setMessage(String.format("%s %s has been registered", sentPackage.firstname, sentPackage.lastname))
+                    .setMessage(String.format("%s %s has been registered", regFirstName, regLastName))
                     .setNeutralButton("Ok", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             main.getFragmentManager().popBackStackImmediate();
                         }
                     }).create().show();
-        } else if (sentPackage.packageStatus == PackageStatus.REGISTER_RESPONSE_FAIL) {
+        } else {
             new AlertDialog.Builder(main)
                     .setTitle("Register")
                     .setCancelable(false)
-                    .setMessage(sentPackage.retMessage)
+                    .setMessage(retMessage)
                     .setNeutralButton("Ok", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {

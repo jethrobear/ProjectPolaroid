@@ -5,8 +5,12 @@ import android.app.AlertDialog;
 import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.net.InetAddress;
+import java.util.HashMap;
 
 import edu.fcpc.polaroid.Fragment21;
 import edu.fcpc.polaroid.Fragment30;
@@ -39,16 +43,22 @@ public class WiFiLoginHelper extends WiFiHelper {
     }
 
     private int retries = 0;
+    private final int MAX_RETRIES = 3;
 
     @Override
-    public void onPostExecuteAfter(SentPackage sentPackage) {
-        if (sentPackage.packageStatus == PackageStatus.LOGIN_RESPONSE_OK || sentPackage.packageStatus == PackageStatus.NETWORK_BYPASS) {
-            // Login successful
-            Fragment30 fragment30 = new Fragment30();
-            FragmentTransaction fragmentTransaction = main.getFragmentManager().beginTransaction();
-            fragmentTransaction.replace(R.id.main_frame, fragment30, fragment30.toString());
-            fragmentTransaction.commit();
-        } else if (sentPackage.packageStatus == PackageStatus.LOGIN_RESPONSE_FAIL && retries <= 1) {
+    public void onPostExecuteAfter(HashMap<ImmutablePair<InetAddress, Integer>, SentPackage> results) {
+        for (SentPackage sentPackage : results.values()) {
+            if (sentPackage.packageStatus == PackageStatus.LOGIN_RESPONSE_OK || sentPackage.packageStatus == PackageStatus.NETWORK_BYPASS) {
+                // Login successful
+                Fragment30 fragment30 = new Fragment30();
+                FragmentTransaction fragmentTransaction = main.getFragmentManager().beginTransaction();
+                fragmentTransaction.replace(R.id.main_frame, fragment30, fragment30.toString());
+                fragmentTransaction.commit();
+                return;
+            }
+        }
+
+        if (retries <= MAX_RETRIES) {
             new AlertDialog.Builder(main)
                     .setTitle("Alert Box")
                     .setCancelable(false)

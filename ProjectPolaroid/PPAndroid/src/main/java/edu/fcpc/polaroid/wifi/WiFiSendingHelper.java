@@ -6,9 +6,13 @@ import android.content.DialogInterface;
 
 import com.google.common.io.Files;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.net.InetAddress;
+import java.util.HashMap;
 
 import edu.fcpc.polaroid.Fragment30;
 import edu.fcpc.polaroid.packets.PackageStatus;
@@ -26,8 +30,6 @@ public class WiFiSendingHelper extends WiFiHelper {
         dialog.show();
     }
 
-    private int MAX_DIMEN = 1024;
-
     @Override
     public Integer doInBackgroundInner(ObjectOutputStream objOutStream, String... params) throws IOException {
 
@@ -43,29 +45,31 @@ public class WiFiSendingHelper extends WiFiHelper {
     }
 
     @Override
-    public void onPostExecuteAfter(SentPackage sentPackage) {
-        if (sentPackage.packageStatus == PackageStatus.PICTURE_RESPONSE_OK)
-            new AlertDialog.Builder(main)
-                    .setTitle("Picture")
-                    .setCancelable(false)
-                    .setMessage("Picture successfully sent to the server")
-                    .setNeutralButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    }).create().show();
-        else if (sentPackage.packageStatus == PackageStatus.PICTURE_RESPONSE_FAIL)
-            new AlertDialog.Builder(main)
-                    .setTitle("Picture")
-                    .setCancelable(false)
-                    .setMessage(sentPackage.retMessage)
-                    .setNeutralButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    }).create().show();
+    public void onPostExecuteAfter(HashMap<ImmutablePair<InetAddress, Integer>, SentPackage> results) {
+        for (SentPackage sentPackage : results.values()) {
+            if (sentPackage.packageStatus == PackageStatus.PICTURE_RESPONSE_OK)
+                new AlertDialog.Builder(main)
+                        .setTitle("Picture")
+                        .setCancelable(false)
+                        .setMessage("Picture successfully sent to the server")
+                        .setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        }).create().show();
+            else if (sentPackage.packageStatus == PackageStatus.PICTURE_RESPONSE_FAIL)
+                new AlertDialog.Builder(main)
+                        .setTitle("Picture")
+                        .setCancelable(false)
+                        .setMessage(sentPackage.retMessage)
+                        .setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        }).create().show();
+        }
     }
 }
 

@@ -17,15 +17,17 @@ import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.HashMap;
 
 import edu.fcpc.polaroid.BuildConfig;
 import edu.fcpc.polaroid.data.SocketCache;
 import edu.fcpc.polaroid.packets.PackageStatus;
 import edu.fcpc.polaroid.packets.SentPackage;
 
-public abstract class WiFiHelper extends AsyncTask<String, Void, SentPackage> {
+public abstract class WiFiHelper extends AsyncTask<String, Void, HashMap<ImmutablePair<InetAddress, Integer>, SentPackage>> {
     ProgressDialog dialog;
     Activity main;
+    final ImmutablePair<InetAddress, Integer> NO_SERVER_SET = new ImmutablePair<>(null, null);
 
     public WiFiHelper(Activity main) {
         this.main = main;
@@ -34,8 +36,9 @@ public abstract class WiFiHelper extends AsyncTask<String, Void, SentPackage> {
     }
 
     @Override
-    protected SentPackage doInBackground(String... params) {
+    protected HashMap<ImmutablePair<InetAddress, Integer>, SentPackage> doInBackground(String... params) {
         // Loop through all possible servers
+        HashMap<ImmutablePair<InetAddress, Integer>, SentPackage> resultSet = new HashMap<>();
         for (ImmutablePair<InetAddress, Integer> key : SocketCache.workingAddresses.values()) {
             try {
                 Socket socket = new Socket(key.getLeft(), key.getRight());
@@ -50,7 +53,7 @@ public abstract class WiFiHelper extends AsyncTask<String, Void, SentPackage> {
                 objInStream.close();
                 socket.close();
 
-                return receivePackage;
+                resultSet.put(key, receivePackage);
             } catch (UnknownHostException uhe) {
                 Log.w("ProjectPolaroid", uhe.getMessage());
             } catch (IOException ioe) {
@@ -59,47 +62,53 @@ public abstract class WiFiHelper extends AsyncTask<String, Void, SentPackage> {
                 Log.e("ProjectPolaroid", cnfe.getMessage());
             }
         }
+
         // Return the error message
-        if (!BuildConfig.NETWORK_BYPASS) {
-            SentPackage errorPackage = new SentPackage();
-            errorPackage.packageStatus = PackageStatus.NO_SERVER_FOUND;
-            return errorPackage;
-        } else {
-            SentPackage networkBypass = new SentPackage();
-            networkBypass.packageStatus = PackageStatus.NETWORK_BYPASS;
-            return networkBypass;
+        if (resultSet.size() == 0) {
+            if (!BuildConfig.NETWORK_BYPASS) {
+                SentPackage errorPackage = new SentPackage();
+                errorPackage.packageStatus = PackageStatus.NO_SERVER_FOUND;
+                resultSet.put(NO_SERVER_SET, errorPackage);
+            } else {
+                SentPackage networkBypass = new SentPackage();
+                networkBypass.packageStatus = PackageStatus.NETWORK_BYPASS;
+                resultSet.put(NO_SERVER_SET, networkBypass);
+            }
         }
+
+        // Send to postExecute
+        return resultSet;
     }
 
     @Override
-    protected void onPostExecute(SentPackage result) {
+    protected void onPostExecute(HashMap<ImmutablePair<InetAddress, Integer>, SentPackage> result) {
         dialog.dismiss();
 
         // General issues
-        if (result.packageStatus == PackageStatus.HOSTNAME_NOT_FOUND) {
-            new AlertDialog.Builder(main)
-                    .setTitle("Alert Box")
-                    .setCancelable(false)
-                    .setMessage("Hostname provided was wrong")
-                    .setNeutralButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            System.exit(0);
-                        }
-                    }).create().show();
-        } else if (result.packageStatus == PackageStatus.NO_SERVER_FOUND) {
-            new AlertDialog.Builder(main)
-                    .setTitle("Alert Box")
-                    .setCancelable(false)
-                    .setMessage("No server have been found")
-                    .setNeutralButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            System.exit(0);
-                        }
-                    }).create().show();
-        } else {
-            if (result.packageStatus == PackageStatus.NETWORK_BYPASS)
+        if (result.get(NO_SERVER_SET) != null) {
+            if (result.get(NO_SERVER_SET).packageStatus == PackageStatus.HOSTNAME_NOT_FOUND) {
+                new AlertDialog.Builder(main)
+                        .setTitle("Alert Box")
+                        .setCancelable(false)
+                        .setMessage("Hostname provided was wrong")
+                        .setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                System.exit(0);
+                            }
+                        }).create().show();
+            } else if (result.get(NO_SERVER_SET).packageStatus == PackageStatus.NO_SERVER_FOUND) {
+                new AlertDialog.Builder(main)
+                        .setTitle("Alert Box")
+                        .setCancelable(false)
+                        .setMessage("No server have been found")
+                        .setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                System.exit(0);
+                            }
+                        }).create().show();
+            } else if (result.get(NO_SERVER_SET).packageStatus == PackageStatus.NETWORK_BYPASS) {
                 new AlertDialog.Builder(main)
                         .setTitle("Warning")
                         .setCancelable(false)
@@ -110,11 +119,14 @@ public abstract class WiFiHelper extends AsyncTask<String, Void, SentPackage> {
                                 // Do nothing
                             }
                         }).create().show();
+                onPostExecuteAfter(result);
+            }
+        } else {
             onPostExecuteAfter(result);
         }
     }
 
     public abstract Integer doInBackgroundInner(ObjectOutputStream objOutStream, String... params) throws IOException;
 
-    public abstract void onPostExecuteAfter(SentPackage sentPackage);
+    public abstract void onPostExecuteAfter(HashMap<ImmutablePair<InetAddress, Integer>, SentPackage> sentPackage);
 }
