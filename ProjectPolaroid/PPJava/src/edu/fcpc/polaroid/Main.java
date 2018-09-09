@@ -32,7 +32,7 @@ public class Main extends JFrame {
         setVisible(true);
 
         // Initialize components
-        File file = new File(ClassLoader.getSystemClassLoader().getResource(".").getPath(), "loading.gif");
+        File file = new File(Main.class.getResource("loading.gif").getPath());
         URL url = file.toURI().toURL();
         Icon icon = new ImageIcon(url);
         label = new JLabel(icon);
