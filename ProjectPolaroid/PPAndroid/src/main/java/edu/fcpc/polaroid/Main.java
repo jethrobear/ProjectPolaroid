@@ -89,7 +89,7 @@ public class Main extends Activity implements NsdManager.DiscoveryListener {
 
                 @Override
                 public void onServiceResolved(NsdServiceInfo serviceInfo) {
-                    SocketCache.workingAddresses.put(serviceInfo.getServiceName(), new ImmutablePair<InetAddress, Integer>(serviceInfo.getHost(), serviceInfo.getPort()));
+                    SocketCache.workingAddresses.put(Integer.parseInt(serviceInfo.getServiceName()), new ImmutablePair<InetAddress, Integer>(serviceInfo.getHost(), serviceInfo.getPort()));
                     Log.i("ZZ", String.format("onServiceResolved Resolve Succeeded. \n\t %s:%d", serviceInfo.getHost(), serviceInfo.getPort()));
                 }
             });
@@ -98,7 +98,7 @@ public class Main extends Activity implements NsdManager.DiscoveryListener {
 
     @Override
     public void onServiceLost(NsdServiceInfo service) {
-        SocketCache.workingAddresses.remove(service.getServiceName());
+        SocketCache.workingAddresses.remove(Integer.parseInt(service.getServiceName()));
         Log.e("ZZ", "service lost" + service);
     }
 

@@ -17,17 +17,19 @@ import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.HashMap;
+import java.util.Collection;
+import java.util.LinkedHashMap;
 
 import edu.fcpc.polaroid.BuildConfig;
 import edu.fcpc.polaroid.data.SocketCache;
 import edu.fcpc.polaroid.packets.PackageStatus;
 import edu.fcpc.polaroid.packets.SentPackage;
 
-public abstract class WiFiHelper extends AsyncTask<String, Void, HashMap<ImmutablePair<InetAddress, Integer>, SentPackage>> {
+public abstract class WiFiHelper extends AsyncTask<String, Void, LinkedHashMap<ImmutablePair<InetAddress, Integer>, SentPackage>> {
     ProgressDialog dialog;
     Activity main;
-    final ImmutablePair<InetAddress, Integer> NO_SERVER_SET = new ImmutablePair<>(null, null);
+    private final ImmutablePair<InetAddress, Integer> NO_SERVER_SET = new ImmutablePair<>(null, null);
+    Collection<ImmutablePair<InetAddress, Integer>> workingServerSet = null;
 
     public WiFiHelper(Activity main) {
         this.main = main;
@@ -36,10 +38,10 @@ public abstract class WiFiHelper extends AsyncTask<String, Void, HashMap<Immutab
     }
 
     @Override
-    protected HashMap<ImmutablePair<InetAddress, Integer>, SentPackage> doInBackground(String... params) {
+    protected LinkedHashMap<ImmutablePair<InetAddress, Integer>, SentPackage> doInBackground(String... params) {
         // Loop through all possible servers
-        HashMap<ImmutablePair<InetAddress, Integer>, SentPackage> resultSet = new HashMap<>();
-        for (ImmutablePair<InetAddress, Integer> key : SocketCache.workingAddresses.values()) {
+        LinkedHashMap<ImmutablePair<InetAddress, Integer>, SentPackage> resultSet = new LinkedHashMap<>();
+        for (ImmutablePair<InetAddress, Integer> key : workingServerSet) {
             try {
                 Socket socket = new Socket(key.getLeft(), key.getRight());
                 ObjectOutputStream objOutStream = new ObjectOutputStream(new BufferedOutputStream(socket.getOutputStream()));
@@ -81,7 +83,7 @@ public abstract class WiFiHelper extends AsyncTask<String, Void, HashMap<Immutab
     }
 
     @Override
-    protected void onPostExecute(HashMap<ImmutablePair<InetAddress, Integer>, SentPackage> result) {
+    protected void onPostExecute(LinkedHashMap<ImmutablePair<InetAddress, Integer>, SentPackage> result) {
         dialog.dismiss();
 
         // General issues
@@ -128,5 +130,5 @@ public abstract class WiFiHelper extends AsyncTask<String, Void, HashMap<Immutab
 
     public abstract Integer doInBackgroundInner(ObjectOutputStream objOutStream, String... params) throws IOException;
 
-    public abstract void onPostExecuteAfter(HashMap<ImmutablePair<InetAddress, Integer>, SentPackage> sentPackage);
+    public abstract void onPostExecuteAfter(LinkedHashMap<ImmutablePair<InetAddress, Integer>, SentPackage> sentPackage);
 }

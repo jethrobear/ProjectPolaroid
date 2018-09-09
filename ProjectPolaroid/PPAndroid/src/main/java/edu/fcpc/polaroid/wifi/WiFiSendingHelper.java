@@ -12,13 +12,20 @@ import java.io.File;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.SortedSet;
 
 import edu.fcpc.polaroid.Fragment30;
+import edu.fcpc.polaroid.data.SocketCache;
 import edu.fcpc.polaroid.packets.PackageStatus;
 import edu.fcpc.polaroid.packets.SentPackage;
 
 public class WiFiSendingHelper extends WiFiHelper {
+    private static int activeServer = 0;
 
     public WiFiSendingHelper(Activity main) {
         super(main);
@@ -28,6 +35,18 @@ public class WiFiSendingHelper extends WiFiHelper {
     protected void onPreExecute() {
         dialog.setMessage("Sending image to Digital Frame");
         dialog.show();
+
+        // Determine server to use
+        activeServer++;
+        if (activeServer >= SocketCache.workingAddresses.size()) {
+            activeServer = 0;
+        }
+
+        List<Integer> serverList = new ArrayList<>(SocketCache.workingAddresses.keySet());
+        Collections.sort(serverList);
+        ArrayList<ImmutablePair<InetAddress, Integer>> validServer = new ArrayList<>();
+        validServer.add(SocketCache.workingAddresses.get(serverList.get(activeServer)));
+        workingServerSet = validServer;
     }
 
     @Override
@@ -45,7 +64,7 @@ public class WiFiSendingHelper extends WiFiHelper {
     }
 
     @Override
-    public void onPostExecuteAfter(HashMap<ImmutablePair<InetAddress, Integer>, SentPackage> results) {
+    public void onPostExecuteAfter(LinkedHashMap<ImmutablePair<InetAddress, Integer>, SentPackage> results) {
         for (SentPackage sentPackage : results.values()) {
             if (sentPackage.packageStatus == PackageStatus.PICTURE_RESPONSE_OK)
                 new AlertDialog.Builder(main)
