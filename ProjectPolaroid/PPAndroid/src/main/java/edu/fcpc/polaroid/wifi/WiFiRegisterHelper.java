@@ -9,8 +9,9 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
+import edu.fcpc.polaroid.data.SocketCache;
 import edu.fcpc.polaroid.packets.PackageStatus;
 import edu.fcpc.polaroid.packets.SentPackage;
 
@@ -28,6 +29,7 @@ public class WiFiRegisterHelper extends WiFiHelper {
     protected void onPreExecute() {
         dialog.setMessage("Sending image to Digital Frame");
         dialog.show();
+        workingServerSet = SocketCache.workingAddresses.values();
     }
 
     @Override
@@ -50,7 +52,7 @@ public class WiFiRegisterHelper extends WiFiHelper {
     }
 
     @Override
-    public void onPostExecuteAfter(HashMap<ImmutablePair<InetAddress, Integer>, SentPackage> results) {
+    public void onPostExecuteAfter(LinkedHashMap<ImmutablePair<InetAddress, Integer>, SentPackage> results) {
         String regFirstName = "", regLastName = "";
         StringBuilder retMessage = new StringBuilder();
         boolean hasSuccessfulRegistration = false;

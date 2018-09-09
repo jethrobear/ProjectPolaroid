@@ -7,5 +7,5 @@ import java.net.InetAddress;
 import java.util.HashMap;
 
 public class SocketCache {
-    public static HashMap<String, ImmutablePair<InetAddress, Integer>> workingAddresses = new HashMap<>();
+    public static HashMap<Integer, ImmutablePair<InetAddress, Integer>> workingAddresses = new HashMap<>();
 }

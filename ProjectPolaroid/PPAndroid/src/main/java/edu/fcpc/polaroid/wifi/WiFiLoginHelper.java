@@ -10,11 +10,12 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 import edu.fcpc.polaroid.Fragment21;
 import edu.fcpc.polaroid.Fragment30;
 import edu.fcpc.polaroid.R;
+import edu.fcpc.polaroid.data.SocketCache;
 import edu.fcpc.polaroid.packets.PackageStatus;
 import edu.fcpc.polaroid.packets.SentPackage;
 
@@ -27,6 +28,7 @@ public class WiFiLoginHelper extends WiFiHelper {
     protected void onPreExecute() {
         dialog.setMessage("Sending login to Digital Frame");
         dialog.show();
+        workingServerSet = SocketCache.workingAddresses.values();
     }
 
     @Override
@@ -46,7 +48,7 @@ public class WiFiLoginHelper extends WiFiHelper {
     private final int MAX_RETRIES = 3;
 
     @Override
-    public void onPostExecuteAfter(HashMap<ImmutablePair<InetAddress, Integer>, SentPackage> results) {
+    public void onPostExecuteAfter(LinkedHashMap<ImmutablePair<InetAddress, Integer>, SentPackage> results) {
         for (SentPackage sentPackage : results.values()) {
             if (sentPackage.packageStatus == PackageStatus.LOGIN_RESPONSE_OK || sentPackage.packageStatus == PackageStatus.NETWORK_BYPASS) {
                 // Login successful
