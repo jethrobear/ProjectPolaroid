@@ -4,45 +4,44 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import javax.imageio.ImageIO;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.SwingConstants;
-
-import edu.fcpc.polaroid.helper.SQLHelper;
 
 public class Main extends JFrame {
     private JPanel panel = new JPanel();
-    private JLabel label = new JLabel("", SwingConstants.CENTER);
+    private JLabel label;
     private Logger logger = LoggerFactory.getLogger(Main.class);
 
-    public Main() {
+    public Main() throws MalformedURLException {
         super();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setBackground(Color.BLACK);
-
-        // Initialize components
-        label.setForeground(Color.GREEN);
-        label.setFont(new Font("San-Serif", Font.PLAIN, 96));
-        label.setText("Starting PPJava...");
-        add(label);
-        pack();
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setVisible(true);
 
-        // Prepare SQL database
-        label.setText("Starting SQL...");
-        SQLHelper.prepareConnection();
+        // Initialize components
+        File file = new File(ClassLoader.getSystemClassLoader().getResource(".").getPath(), "loading.gif");
+        URL url = file.toURI().toURL();
+        Icon icon = new ImageIcon(url);
+        label = new JLabel(icon);
+        label.setSize(800, 600);
+        add(label);
+        pack();
+        setLocationRelativeTo(null);
 
         // Start running the helper
-        label.setText("Starting background daemons...");
         WiFiHelper bluetoothHelper = new WiFiHelper(this);
         Thread thread = new Thread(bluetoothHelper);
         thread.start();
@@ -58,7 +57,7 @@ public class Main extends JFrame {
         setVisible(true);
     }
 
-    public static void main(String... args) {
+    public static void main(String... args) throws MalformedURLException {
         new Main();
     }
 
